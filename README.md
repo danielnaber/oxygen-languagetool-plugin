@@ -1,4 +1,4 @@
 oxygen-languagetool-plugin
 ==========================
 
-LanguageTool plugin for the Oxygen XML editor
+Prototype of a LanguageTool plugin for the Oxygen XML editor

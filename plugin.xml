@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plugin SYSTEM "../plugin.dtd">
+
+<plugin
+ id="org.languagetool.oxygen.plugin"
+ name="LanguageToolPlugin"
+ description="LanguageTool plugin for Oxygen"
+ version="${project.version}"
+ vendor="Daniel Naber"
+ class="org.languagetool.oxygen.LanguageToolPlugin"
+ classLoaderType="preferReferencedResources">
+ <runtime>
+   <library name="lib/${project.build.finalName}.jar"/>
+ </runtime>
+ 
+ <extension type="WorkspaceAccess" class="org.languagetool.oxygen.LanguageToolPluginExtension"/>
+ <extension type="OptionPage" class="org.languagetool.oxygen.LanguageToolOptionPagePluginExtension"/> 
+ <view id="SampleWorkspaceAccessID" initialSide="WEST" initialRow="0"/>
+ <toolbar id="SampleWorkspaceAccessToolbarID" initialSide="NORTH" initialRow="1"/>
+</plugin>
