@@ -29,6 +29,7 @@ import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
 import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
+import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
@@ -36,6 +37,10 @@ import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,10 +67,22 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       @Override
       public void actionPerformed(ActionEvent actionevent) {
         WSEditor editorAccess = pluginWorkspaceAccess.getCurrentEditorAccess(StandalonePluginWorkspace.MAIN_EDITING_AREA);
-        /*if (editorAccess != null && EditorPageConstants.PAGE_TEXT.equals(editorAccess.getCurrentPageID())) {
-          //WSTextEditorPage access = (WSTextEditorPage)editorAccess.getCurrentPage();
+        if (editorAccess != null && EditorPageConstants.PAGE_TEXT.equals(editorAccess.getCurrentPageID())) {
           //TODO: how to highlight text, similar as the integrated spell checker does?
-        }*/
+          //see http://www.oxygenxml.com/forum/topic10704.html
+          /*WSTextEditorPage currentPage = (WSTextEditorPage)editorAccess.getCurrentPage();
+          Object textComponent = currentPage.getTextComponent();
+          if (textComponent instanceof JTextArea) {
+             JTextArea textArea = (JTextArea) textComponent;
+             Highlighter highlighter = textArea.getHighlighter();
+            try {
+              highlighter.addHighlight(from, to, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
+            } catch (BadLocationException e) {
+              //noinspection CallToPrintStackTrace
+              e.printStackTrace();
+            }
+          }*/
+        }
         if (editorAccess != null && EditorPageConstants.PAGE_AUTHOR.equals(editorAccess.getCurrentPageID())) {
           final WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
           if(authorPopupMenuCustomizer != null) {
