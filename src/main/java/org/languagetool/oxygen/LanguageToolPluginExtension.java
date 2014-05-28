@@ -29,7 +29,6 @@ import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
 import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
-import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
@@ -37,10 +36,6 @@ import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.JTextComponent;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,65 +63,58 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       public void actionPerformed(ActionEvent actionevent) {
         WSEditor editorAccess = pluginWorkspaceAccess.getCurrentEditorAccess(StandalonePluginWorkspace.MAIN_EDITING_AREA);
         if (editorAccess != null && EditorPageConstants.PAGE_TEXT.equals(editorAccess.getCurrentPageID())) {
-          //TODO: how to highlight text, similar as the integrated spell checker does?
-          //see http://www.oxygenxml.com/forum/topic10704.html
-          /*WSTextEditorPage currentPage = (WSTextEditorPage)editorAccess.getCurrentPage();
-          Object textComponent = currentPage.getTextComponent();
-          if (textComponent instanceof JTextArea) {
-             JTextArea textArea = (JTextArea) textComponent;
-             Highlighter highlighter = textArea.getHighlighter();
-            try {
-              highlighter.addHighlight(from, to, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
-            } catch (BadLocationException e) {
-              //noinspection CallToPrintStackTrace
-              e.printStackTrace();
-            }
-          }*/
+          setupHighlightingForTextMode(editorAccess);
         }
         if (editorAccess != null && EditorPageConstants.PAGE_AUTHOR.equals(editorAccess.getCurrentPageID())) {
-          final WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
-          if(authorPopupMenuCustomizer != null) {
-            authorPageAccess.removePopUpMenuCustomizer(authorPopupMenuCustomizer);
-          }
-          authorPopupMenuCustomizer = new AuthorPopupMenuCustomizer() {
-            @Override
-            public void customizePopUpMenu(Object popUp, AuthorAccess authorAccess) {
-              Highlight[] highlights = authorAccess.getEditorAccess().getHighlighter().getHighlights();
-              int caretOffset = authorAccess.getEditorAccess().getCaretOffset();
-              for (Highlight highlight : highlights) {
-                if (caretOffset >= highlight.getStartOffset() && caretOffset <= highlight.getEndOffset()) {
-                  RuleMatch match = (RuleMatch) highlight.getAdditionalData();
-                  addMenuItems((JPopupMenu) popUp, highlight, new ApplyReplacementAction(match, highlight, authorAccess));
-                  break;
-                }
-              }
-            }
-          };
-          authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
-
-          final AuthorDocumentController controller = authorPageAccess.getDocumentController();
-          final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
-          controller.addAuthorListener(new AuthorListenerAdapter() {
-            @Override
-            public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
-              // "A new document has been set into the author page."
-              checkTextInBackground(highlighter, controller);
-              lastModificationTime = System.currentTimeMillis();
-            }
-            @Override
-            public void contentDeleted(DocumentContentDeletedEvent documentContentDeletedEvent) {
-              checkTextInBackground(highlighter, controller);
-              lastModificationTime = System.currentTimeMillis();
-            }
-            @Override
-            public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
-              checkTextInBackground(highlighter, controller);
-              lastModificationTime = System.currentTimeMillis();
-            }
-          });
-
-          checkText(highlighter, controller);
+          setupHighlightingForAuthorMode(editorAccess);
         }
+      }
+
+      private void setupHighlightingForTextMode(WSEditor editorAccess) {
+        //TODO: highlight in text mode
+        //see http://www.oxygenxml.com/forum/topic10704.html
+        /*WSTextEditorPage currentPage = (WSTextEditorPage)editorAccess.getCurrentPage();
+        Object textComponent = currentPage.getTextComponent();
+        if (textComponent instanceof JTextArea) {
+           JTextArea textArea = (JTextArea) textComponent;
+           Highlighter highlighter = textArea.getHighlighter();
+          try {
+            highlighter.addHighlight(from, to, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
+          } catch (BadLocationException e) {
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+          }
+        }*/
+      }
+      
+      private void setupHighlightingForAuthorMode(WSEditor editorAccess) {
+        final WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
+        if(authorPopupMenuCustomizer != null) {
+          authorPageAccess.removePopUpMenuCustomizer(authorPopupMenuCustomizer);
+        }
+        authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizer();
+        authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
+        final AuthorDocumentController controller = authorPageAccess.getDocumentController();
+        final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
+        controller.addAuthorListener(new AuthorListenerAdapter() {
+          @Override
+          public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
+            // "A new document has been set into the author page."
+            checkTextInBackground(highlighter, controller);
+            lastModificationTime = System.currentTimeMillis();
+          }
+          @Override
+          public void contentDeleted(DocumentContentDeletedEvent documentContentDeletedEvent) {
+            checkTextInBackground(highlighter, controller);
+            lastModificationTime = System.currentTimeMillis();
+          }
+          @Override
+          public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
+            checkTextInBackground(highlighter, controller);
+            lastModificationTime = System.currentTimeMillis();
+          }
+        });
+        checkText(highlighter, controller);
       }
     };
 
@@ -231,6 +219,21 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   @Override
   public boolean applicationClosing() {
     return true;
+  }
+  
+  class ApplyReplacementMenuCustomizer implements AuthorPopupMenuCustomizer {
+    @Override
+    public void customizePopUpMenu(Object popUp, AuthorAccess authorAccess) {
+      Highlight[] highlights = authorAccess.getEditorAccess().getHighlighter().getHighlights();
+      int caretOffset = authorAccess.getEditorAccess().getCaretOffset();
+      for (Highlight highlight : highlights) {
+        if (caretOffset >= highlight.getStartOffset() && caretOffset <= highlight.getEndOffset()) {
+          RuleMatch match = (RuleMatch) highlight.getAdditionalData();
+          addMenuItems((JPopupMenu) popUp, highlight, new ApplyReplacementAction(match, highlight, authorAccess));
+          break;
+        }
+      }
+    }
   }
 
   class ApplyReplacementAction extends AbstractAction {
