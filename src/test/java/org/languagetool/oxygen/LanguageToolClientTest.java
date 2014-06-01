@@ -35,7 +35,7 @@ public class LanguageToolClientTest {
     TextWithMapping text = new TextWithMapping();
     text.addMapping(new TextRange(0, 16), new TextRange(10, 26));
     text.setText("This is an text.");
-    List<RuleMatch> ruleMatches = client.checkText(text);
+    List<RuleMatch> ruleMatches = client.checkText(text, "en");
     assertThat(ruleMatches.size(), is(1));
     assertThat(ruleMatches.get(0).getReplacements().size(), is(1));
     assertThat(ruleMatches.get(0).getReplacements().get(0), is("a"));

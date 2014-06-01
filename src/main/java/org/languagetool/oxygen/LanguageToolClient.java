@@ -22,10 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -49,13 +46,14 @@ class LanguageToolClient {
     this.url = url;
   }
 
-  List<RuleMatch> checkText(TextWithMapping text) {
+  List<RuleMatch> checkText(TextWithMapping text, String langCode) {
     HttpURLConnection connection = null;
     try {
-      String urlParameters = "language=en&text=" + text.getText();
+      String urlParameters = "language=" + langCode.replace('_', '-') + "&text=" + text.getText();
       URL languageToolUrl = new URL(url);
       connection = openConnection(languageToolUrl);
       writeParameters(urlParameters, connection);
+      // TODO: properly handle error 500 (which we get e.g. for unsupported languages)
       InputStream inputStream = connection.getInputStream();
       String xml = streamToString(inputStream, "utf-8");
       return parseXml(xml, text);
@@ -111,10 +109,10 @@ class LanguageToolClient {
   }
 
   private List<RuleMatch> parseXml(String xml, TextWithMapping text) throws XPathExpressionException {
-    List<RuleMatch> matches = new ArrayList<>();
-    Document document = getDocument(xml);
     XPath xPath = XPathFactory.newInstance().newXPath();
+    Document document = XmlTools.getDocument(xml);
     NodeList nodeSet = (NodeList) xPath.evaluate("//error", document, XPathConstants.NODESET);
+    List<RuleMatch> matches = new ArrayList<>();
     for (int i = 0; i < nodeSet.getLength(); i++) {
       Node errorNode = nodeSet.item(i);
       RuleMatch ruleMatch = getRuleMatch(text, errorNode);
@@ -137,18 +135,6 @@ class LanguageToolClient {
     ruleMatch.setOxygenOffsetStart(text.getOxygenPositionFor(offset) + 1);
     ruleMatch.setOxygenOffsetEnd(text.getOxygenPositionFor(offset + length));
     return ruleMatch;
-  }
-
-  private Document getDocument(String xml) {
-    try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setNamespaceAware(false);  // we just ignore namespaces
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      InputSource inputSource = new InputSource(new StringReader(xml));
-      return builder.parse(inputSource);
-    } catch (Exception e) {
-      throw new RuntimeException("Could not parse XML", e);
-    }
   }
 
 }

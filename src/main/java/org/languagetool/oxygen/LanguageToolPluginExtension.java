@@ -18,6 +18,8 @@
  */
 package org.languagetool.oxygen;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ro.sync.ecss.extensions.api.*;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
@@ -36,15 +38,23 @@ import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
   private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
   private static final long MIN_WAIT_MILLIS = 500;
+  private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
 
@@ -81,7 +91,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           try {
             highlighter.addHighlight(from, to, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
           } catch (BadLocationException e) {
-            //noinspection CallToPrintStackTrace
             e.printStackTrace();
           }
         }*/
@@ -100,21 +109,21 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           @Override
           public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
             // "A new document has been set into the author page."
-            checkTextInBackground(highlighter, controller);
+            checkTextInBackground(highlighter, authorPageAccess);
             lastModificationTime = System.currentTimeMillis();
           }
           @Override
           public void contentDeleted(DocumentContentDeletedEvent documentContentDeletedEvent) {
-            checkTextInBackground(highlighter, controller);
+            checkTextInBackground(highlighter, authorPageAccess);
             lastModificationTime = System.currentTimeMillis();
           }
           @Override
           public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
-            checkTextInBackground(highlighter, controller);
+            checkTextInBackground(highlighter, authorPageAccess);
             lastModificationTime = System.currentTimeMillis();
           }
         });
-        checkText(highlighter, controller);
+        checkText(highlighter, authorPageAccess);
       }
     };
 
@@ -138,16 +147,49 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   }
 
-  private void checkTextInBackground(final AuthorHighlighter highlighter, final AuthorDocumentController controller) {
+  // We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
+  // so we access the file on disk:
+  private String getDefaultLanguageCode(WSAuthorEditorPage authorEditorPage) {
+    String preferencesDir = authorEditorPage.getAuthorAccess().getWorkspaceAccess().getPreferencesDirectory();
+    File preferencesFile = new File(preferencesDir, PREFS_FILE);
+    if (preferencesFile.exists()) {
+      try {
+        String fileContent = loadFile(preferencesFile);
+        Document preferencesDoc = XmlTools.getDocument(fileContent);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        Node node = (Node) xPath.evaluate("//field[@name='language']/String/text()", preferencesDoc, XPathConstants.NODE);
+        return node.getNodeValue();
+      } catch (Exception e) {
+        System.err.println("Could not load language from " + preferencesFile + ": " + e.getMessage() + ", will use English for LanguageTool check");
+        e.printStackTrace();
+        return "en";
+      }
+    } else {
+      System.err.println("Warning: No preference file found at " + preferencesFile + ", will use English for LanguageTool check");
+      return "en";
+    }
+  }
+
+  private String loadFile(File file) throws FileNotFoundException {
+    StringBuilder sb = new StringBuilder();
+    try (Scanner sc = new Scanner(file)) {
+      while (sc.hasNextLine()) {
+        sb.append(sc.nextLine());
+      }
+    }
+    return sb.toString();
+  }
+
+  private void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
     new Thread(new Runnable() {
       @Override
       public void run() {
-        checkText(highlighter, controller);
+        checkText(highlighter, authorEditorPage);
       }
     }).start();
   }
   
-  private void checkText(final AuthorHighlighter highlighter, final AuthorDocumentController controller) {
+  private void checkText(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
     if (lastModificationTime < lastCheckTime) {
       System.out.println("Nothing to be checked: " + lastModificationTime + " < " + lastCheckTime);
       return;
@@ -160,7 +202,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
-      checkTextInBackground(highlighter, controller);
+      checkTextInBackground(highlighter, authorEditorPage);
       return;
     }
 
@@ -169,12 +211,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     
     long startTime = System.currentTimeMillis();
     try {
-      AuthorDocument authorDocumentNode = controller.getAuthorDocumentNode();
+      AuthorDocument authorDocumentNode = authorEditorPage.getDocumentController().getAuthorDocumentNode();
       List<AuthorNode> contentNodes = authorDocumentNode.getContentNodes();
       TextCollector textCollector = new TextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(contentNodes);
       try {
-        List<RuleMatch> ruleMatches = client.checkText(textWithMapping);
+        String langCode = getDefaultLanguageCode(authorEditorPage);
+        // TODO: also consider document language ('xml:lang' or 'lang' attributes)
+        List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
         ColorHighlightPainter painter = new ColorHighlightPainter();
         for (RuleMatch match : ruleMatches) {
@@ -187,19 +231,17 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           //highlighter.addHighlight(61, 61, painter, match);  -> doesn't underline anything. bug?
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Check time: " + (endTime-startTime) + "ms for " + ruleMatches.size() + " matches");
+        System.out.println("Check time: " + (endTime-startTime) + "ms for " + ruleMatches.size() + " matches, language: " + langCode);
       } catch (Exception e) {
         showErrorDialog(e);
       }
     } catch (BadLocationException e) {
-      //noinspection CallToPrintStackTrace
       e.printStackTrace();
     }
     lastCheckTime = System.currentTimeMillis();
   }
 
   private void showErrorDialog(Exception e) {
-    //noinspection CallToPrintStackTrace
     e.printStackTrace();
     String msg = e.getMessage() + "\n(See console output for full stacktrace.)";
     JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
