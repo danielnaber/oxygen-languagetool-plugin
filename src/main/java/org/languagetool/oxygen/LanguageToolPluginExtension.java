@@ -55,6 +55,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
   private static final long MIN_WAIT_MILLIS = 500;
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
+  private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
 
@@ -251,10 +252,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     RuleMatch match = (RuleMatch)highlight.getAdditionalData();
     JMenuItem menuItem = new JMenuItem(match.getMessage());
     popUp.add(menuItem);
+    int replacementCount = 1;
     for (String replacement : match.getReplacements()) {
       JMenuItem replacementItem = new JMenuItem(action);
       replacementItem.setText(replacement);
       popUp.add(replacementItem);
+      if (replacementCount++ >= MAX_REPLACEMENTS) {
+        break;
+      }
     }
   }
 
