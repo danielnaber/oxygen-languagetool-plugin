@@ -232,7 +232,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           //highlighter.addHighlight(61, 61, painter, match);  -> doesn't underline anything. bug?
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Check time: " + (endTime-startTime) + "ms for " + ruleMatches.size() + " matches, language: " + langCode);
+        System.out.println("Check time: " + (endTime-startTime) + "ms for " + textWithMapping.getText().length() + " bytes, "
+                + ruleMatches.size() + " matches, language: " + langCode);
       } catch (Exception e) {
         showErrorDialog(e);
       }
