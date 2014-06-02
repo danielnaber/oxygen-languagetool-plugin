@@ -15,6 +15,11 @@ Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ![Oxygen XML editor](http://www.oxygenxml.com/img/resources/oxygen190x62.png)
 
+### Download and Install
+
+Got to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
+latest release. Unzip it in the `plugins` directory of your Oxygen installation and restart Oxygen.
+
 ### Building
 
 Building this requires Java 7 or later, Maven, and your `.m2/settings.xml` to be set up
