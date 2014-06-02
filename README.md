@@ -17,6 +17,10 @@ Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Building
 
-Building this requires Java 7 or later, Maven, and your `.m2/settings.xml` to be set up [as described here](http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration).
+Building this requires Java 7 or later, Maven, and your `.m2/settings.xml` to be set up
+[as described here](http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration).
 
-Call `mvn package`, then unzip the resulting `target/oxygen-sample-plugin-workspace-access-1.0-SNAPSHOT-plugin.jar` to a sub-directory of your `oxygen/plugins` folder and restart Oxygen. Load a file with English text, switch to author mode, and click the "Check text" button (you only need to do this once after loading a file). Errors that can be detected by LanguageTool should become underlined.
+Call `mvn package`, then unzip the resulting `target/oxygen-sample-plugin-workspace-access-1.0-SNAPSHOT-plugin.jar`
+to a sub-directory of your `oxygen/plugins` folder and restart Oxygen. Load a file with English text,
+switch to author mode, and click the "Check text" button (you only need to do this once after loading
+a file). Errors that can be detected by LanguageTool should become underlined.
