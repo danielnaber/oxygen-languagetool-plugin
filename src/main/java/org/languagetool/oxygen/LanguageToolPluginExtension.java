@@ -121,7 +121,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
             checkTextInBackground(highlighter, authorPageAccess);
           }
         });
-        checkText(highlighter, authorPageAccess);
+        checkTextInBackground(highlighter, authorPageAccess);
       }
     };
 
@@ -185,7 +185,12 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     timer = new Timer(MIN_WAIT_MILLIS, new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        checkText(highlighter, authorEditorPage);
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            checkText(highlighter, authorEditorPage);
+          }
+        }).start();
       }
     });
     timer.start();
@@ -197,9 +202,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         timer.stop();
       }
     }
-
-    //TODO: there are still case where we send two requests almost at the same time:
-    //System.out.println("Time since last check: " + timeSinceLastCheck + "ms");
     
     long startTime = System.currentTimeMillis();
     try {
@@ -219,7 +221,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           //System.out.println("Match: " + match.getOffsetStart() + "-" + match.getOffsetEnd() +
           //        " (Oxygen: " + start + "-"+ end + "): " + match.getMessage());
           highlighter.addHighlight(start, end, painter, match);
-          // TODO: underlining a single char doesn't seem possible, see http://www.oxygenxml.com/forum/viewtopic.php?f=1&t=10702&e=0
+          // TODO: underlining a single char doesn't seem possible, see http://www.oxygenxml.com/forum/viewtopic.php?f=1&t=10702
           //highlighter.addHighlight(61, 61, painter, match);  -> doesn't underline anything. bug?
         }
         long endTime = System.currentTimeMillis();
