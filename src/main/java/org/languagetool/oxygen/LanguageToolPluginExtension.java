@@ -42,6 +42,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ import java.util.Scanner;
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
   private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
-  private static final long MIN_WAIT_MILLIS = 500;
+  private static final int MIN_WAIT_MILLIS = 500;
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   
@@ -61,8 +62,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
-  private long lastCheckTime;
-  private long lastModificationTime;
+  private Timer timer;
   
   @Override
   public void applicationStarted(final StandalonePluginWorkspace pluginWorkspaceAccess) {
@@ -111,17 +111,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
             // "A new document has been set into the author page."
             checkTextInBackground(highlighter, authorPageAccess);
-            lastModificationTime = System.currentTimeMillis();
           }
           @Override
           public void contentDeleted(DocumentContentDeletedEvent documentContentDeletedEvent) {
             checkTextInBackground(highlighter, authorPageAccess);
-            lastModificationTime = System.currentTimeMillis();
           }
           @Override
           public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
             checkTextInBackground(highlighter, authorPageAccess);
-            lastModificationTime = System.currentTimeMillis();
           }
         });
         checkText(highlighter, authorPageAccess);
@@ -181,30 +178,24 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     return sb.toString();
   }
 
-  private void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
-    new Thread(new Runnable() {
+  private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
+    if (timer != null) {
+      timer.stop();
+    }
+    timer = new Timer(MIN_WAIT_MILLIS, new ActionListener() {
       @Override
-      public void run() {
+      public void actionPerformed(ActionEvent e) {
         checkText(highlighter, authorEditorPage);
       }
-    }).start();
+    });
+    timer.start();
   }
   
   private void checkText(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
-    if (lastModificationTime < lastCheckTime) {
-      System.out.println("Nothing to be checked: " + lastModificationTime + " < " + lastCheckTime);
-      return;
-    }
-    long timeSinceLastCheck = System.currentTimeMillis() - lastCheckTime;
-    if (timeSinceLastCheck < MIN_WAIT_MILLIS) {
-      System.out.println("Waiting " + MIN_WAIT_MILLIS + "ms, time since last check: " + timeSinceLastCheck + "ms");
-      try {
-        Thread.sleep(MIN_WAIT_MILLIS);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+    synchronized (this) {
+      if (timer != null) {
+        timer.stop();
       }
-      checkTextInBackground(highlighter, authorEditorPage);
-      return;
     }
 
     //TODO: there are still case where we send two requests almost at the same time:
@@ -240,7 +231,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     } catch (BadLocationException e) {
       e.printStackTrace();
     }
-    lastCheckTime = System.currentTimeMillis();
   }
 
   private void showErrorDialog(Exception e) {
