@@ -9,6 +9,7 @@ Major limitations, as this is just a prototype:
 * requires clicking the "Check Text" button once
 * uses the default language configured for the spell checker (ignores 'lang' attributes)
 * simply checks anything not inside XML tags (has no advanced logic how to transform XML to plain text, as needed by LanguageTool)
+* cannot highlight errors that affect only one character due to [a bug](http://www.oxygenxml.com/forum/topic10702.html) in Oxygen
 * tested with Oxygen 16.0 only
 
 Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free license.
