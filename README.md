@@ -5,7 +5,7 @@ oxygen-languagetool-plugin
 
 Major limitations, as this is just a prototype:
 * requires a [LanguageTool](http://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
-* requires Java 7, but Oxygen comes with a bundled version of Java 6. See [here](http://www.oxygenxml.com/forum/topic7033.html#p22000) for a solution under Linux and Windows.
+* requires Java 7, but it seems Oxygen for the Mac comes with a bundled version of Java 6
 * works in Author mode only
 * requires clicking the "Check Text" button once
 * uses the default language configured for the spell checker (ignores `lang` attributes)
