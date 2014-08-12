@@ -38,5 +38,6 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 
 * 2014-08-12:
     * works with Java 1.6
+    * some cleanups
 * 2014-06-14:
     * first snapshot release
