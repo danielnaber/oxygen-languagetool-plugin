@@ -89,9 +89,8 @@ class LanguageToolClient {
   }
 
   private static String streamToString(InputStream is, String charsetName) throws IOException {
-    try (InputStreamReader isr = new InputStreamReader(is, charsetName)) {
+      InputStreamReader isr = new InputStreamReader(is, charsetName);
       return readerToString(isr);
-    }
   }
 
   private static String readerToString(Reader reader) throws IOException {
@@ -112,7 +111,7 @@ class LanguageToolClient {
     XPath xPath = XPathFactory.newInstance().newXPath();
     Document document = XmlTools.getDocument(xml);
     NodeList nodeSet = (NodeList) xPath.evaluate("//error", document, XPathConstants.NODESET);
-    List<RuleMatch> matches = new ArrayList<>();
+    List<RuleMatch> matches = new ArrayList<RuleMatch>();
     for (int i = 0; i < nodeSet.getLength(); i++) {
       Node errorNode = nodeSet.item(i);
       RuleMatch ruleMatch = getRuleMatch(text, errorNode);
