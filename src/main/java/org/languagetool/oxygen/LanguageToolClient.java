@@ -89,8 +89,12 @@ class LanguageToolClient {
   }
 
   private static String streamToString(InputStream is, String charsetName) throws IOException {
-      InputStreamReader isr = new InputStreamReader(is, charsetName);
+    InputStreamReader isr = new InputStreamReader(is, charsetName);
+    try {
       return readerToString(isr);
+    } finally {
+      isr.close();
+    }
   }
 
   private static String readerToString(Reader reader) throws IOException {
