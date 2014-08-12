@@ -148,11 +148,9 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   }
 
-  // We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
-  // so we access the file on disk:
-  private String getDefaultLanguageCode(WSAuthorEditorPage authorEditorPage) {
+  private String getDefaultLanguageCode() {
     String uiLang = PluginWorkspaceProvider.getPluginWorkspace().getUserInterfaceLanguage();
-    if(uiLang == null){
+    if (uiLang == null) {
       uiLang = "en-US";
     } else {
       uiLang = uiLang.replace('_', '-');
@@ -192,7 +190,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       TextCollector textCollector = new TextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(contentNodes);
       try {
-        String langCode = getDefaultLanguageCode(authorEditorPage);
+        String langCode = getDefaultLanguageCode();
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
@@ -276,7 +274,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
       AuthorDocumentController controller = authorPageAccess.getDocumentController();
       controller.beginCompoundEdit();
-      try{
+      try {
         boolean deleted = controller.delete(match.getOxygenOffsetStart(), match.getOxygenOffsetEnd());
         if (!deleted) {
           System.err.println("Could not delete text for match " + match);
@@ -284,7 +282,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           controller.insertText(match.getOxygenOffsetStart(), event.getActionCommand());
           authorAccess.getEditorAccess().getHighlighter().removeHighlight(highlight);
         }
-      } finally{
+      } finally {
         controller.endCompoundEdit();
       }
     }
