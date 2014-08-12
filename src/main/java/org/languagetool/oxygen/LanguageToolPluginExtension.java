@@ -18,9 +18,26 @@
  */
 package org.languagetool.oxygen;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import ro.sync.ecss.extensions.api.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.Timer;
+import javax.swing.text.BadLocationException;
+
+import ro.sync.ecss.extensions.api.AuthorAccess;
+import ro.sync.ecss.extensions.api.AuthorDocumentController;
+import ro.sync.ecss.extensions.api.AuthorListenerAdapter;
+import ro.sync.ecss.extensions.api.DocumentContentDeletedEvent;
+import ro.sync.ecss.extensions.api.DocumentContentInsertedEvent;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
@@ -29,6 +46,7 @@ import ro.sync.ecss.extensions.api.node.AuthorNode;
 import ro.sync.ecss.extensions.api.structure.AuthorPopupMenuCustomizer;
 import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
+import ro.sync.exml.workspace.api.PluginWorkspaceProvider;
 import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
@@ -36,26 +54,11 @@ import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
 import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
-import javax.swing.*;
-import javax.swing.text.BadLocationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
   private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
   private static final int MIN_WAIT_MILLIS = 500;
-  private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
@@ -130,7 +133,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       @Override
       public void customizeToolbar(ToolbarInfo toolbarInfo) {
         if ("SampleWorkspaceAccessToolbarID".equals(toolbarInfo.getToolbarID())) {
-          List<JComponent> components = new ArrayList<>();
+          List<JComponent> components = new ArrayList<JComponent>();
           JComponent[] initialComponents = toolbarInfo.getComponents();
           if (initialComponents != null && initialComponents.length > 0) {
             Collections.addAll(components, initialComponents);
@@ -148,34 +151,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   // We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
   // so we access the file on disk:
   private String getDefaultLanguageCode(WSAuthorEditorPage authorEditorPage) {
-    String preferencesDir = authorEditorPage.getAuthorAccess().getWorkspaceAccess().getPreferencesDirectory();
-    File preferencesFile = new File(preferencesDir, PREFS_FILE);
-    if (preferencesFile.exists()) {
-      try {
-        String fileContent = loadFile(preferencesFile);
-        Document preferencesDoc = XmlTools.getDocument(fileContent);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        Node node = (Node) xPath.evaluate("//field[@name='language']/String/text()", preferencesDoc, XPathConstants.NODE);
-        return node.getNodeValue();
-      } catch (Exception e) {
-        System.err.println("Could not load language from " + preferencesFile + ": " + e.getMessage() + ", will use English for LanguageTool check");
-        e.printStackTrace();
-        return "en";
-      }
+    String uiLang = PluginWorkspaceProvider.getPluginWorkspace().getUserInterfaceLanguage();
+    if(uiLang == null){
+      uiLang = "en-US";
     } else {
-      System.err.println("Warning: No preference file found at " + preferencesFile + ", will use English for LanguageTool check");
-      return "en";
+      uiLang = uiLang.replace('_', '-');
     }
-  }
-
-  private String loadFile(File file) throws FileNotFoundException {
-    StringBuilder sb = new StringBuilder();
-    try (Scanner sc = new Scanner(file)) {
-      while (sc.hasNextLine()) {
-        sb.append(sc.nextLine());
-      }
-    }
-    return sb.toString();
+    return uiLang;
   }
 
   private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
@@ -293,12 +275,17 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       WSEditor editorAccess = pluginWorkspaceAccess.getCurrentEditorAccess(StandalonePluginWorkspace.MAIN_EDITING_AREA);
       WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
       AuthorDocumentController controller = authorPageAccess.getDocumentController();
-      boolean deleted = controller.delete(match.getOxygenOffsetStart(), match.getOxygenOffsetEnd());
-      if (!deleted) {
-        System.err.println("Could not delete text for match " + match);
-      } else {
-        controller.insertText(match.getOxygenOffsetStart(), event.getActionCommand());
-        authorAccess.getEditorAccess().getHighlighter().removeHighlight(highlight);
+      controller.beginCompoundEdit();
+      try{
+        boolean deleted = controller.delete(match.getOxygenOffsetStart(), match.getOxygenOffsetEnd());
+        if (!deleted) {
+          System.err.println("Could not delete text for match " + match);
+        } else {
+          controller.insertText(match.getOxygenOffsetStart(), event.getActionCommand());
+          authorAccess.getEditorAccess().getHighlighter().removeHighlight(highlight);
+        }
+      } finally{
+        controller.endCompoundEdit();
       }
     }
 
