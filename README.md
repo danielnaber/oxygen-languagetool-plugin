@@ -5,7 +5,6 @@ oxygen-languagetool-plugin
 
 Major limitations, as this is just a prototype:
 * requires a [LanguageTool](http://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
-* requires Java 7, but it seems Oxygen for the Mac comes with a bundled version of Java 6
 * works in Author mode only
 * requires clicking the "Check Text" button once
 * uses the default language configured for the spell checker (ignores `lang` attributes)
@@ -29,8 +28,15 @@ once after loading a file). Errors that can be detected by LanguageTool should b
 
 ### Building
 
-Building the source code requires Java 7 or later, Maven, and your `.m2/settings.xml` to be set up
+Building the source code requires Java 6 or later, Maven, and your `.m2/settings.xml` to be set up
 [as described here](http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration).
 
 Call `mvn package`, then unzip the resulting `target/oxygen-sample-plugin-workspace-access-1.0-SNAPSHOT-plugin.jar`
 to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
+
+### Changelog
+
+* 2014-08-12:
+    * works with Java 1.6
+* 2014-06-14:
+    * first snapshot release
