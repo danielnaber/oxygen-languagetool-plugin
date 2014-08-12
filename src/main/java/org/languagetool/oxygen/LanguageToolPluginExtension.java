@@ -151,7 +151,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private String getDefaultLanguageCode() {
     String uiLang = PluginWorkspaceProvider.getPluginWorkspace().getUserInterfaceLanguage();
     if (uiLang == null) {
-      uiLang = "en-US";
+      uiLang = "en";
     } else {
       uiLang = uiLang.replace('_', '-');
     }
