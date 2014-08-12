@@ -18,26 +18,8 @@
  */
 package org.languagetool.oxygen;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.Timer;
-import javax.swing.text.BadLocationException;
-
-import ro.sync.ecss.extensions.api.AuthorAccess;
-import ro.sync.ecss.extensions.api.AuthorDocumentController;
-import ro.sync.ecss.extensions.api.AuthorListenerAdapter;
-import ro.sync.ecss.extensions.api.DocumentContentDeletedEvent;
-import ro.sync.ecss.extensions.api.DocumentContentInsertedEvent;
+import org.w3c.dom.Document;
+import ro.sync.ecss.extensions.api.*;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
@@ -46,7 +28,6 @@ import ro.sync.ecss.extensions.api.node.AuthorNode;
 import ro.sync.ecss.extensions.api.structure.AuthorPopupMenuCustomizer;
 import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
-import ro.sync.exml.workspace.api.PluginWorkspaceProvider;
 import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
@@ -54,12 +35,28 @@ import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
 import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
+import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.xml.soap.Node;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
   private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
   private static final int MIN_WAIT_MILLIS = 500;
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
+  private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
 
@@ -148,14 +145,40 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   }
 
-  private String getDefaultLanguageCode() {
-    String uiLang = PluginWorkspaceProvider.getPluginWorkspace().getUserInterfaceLanguage();
-    if (uiLang == null) {
-      uiLang = "en";
+  // We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
+  // so we access the file on disk:
+  private String getDefaultLanguageCode(WSAuthorEditorPage authorEditorPage) {
+    String preferencesDir = authorEditorPage.getAuthorAccess().getWorkspaceAccess().getPreferencesDirectory();
+    File preferencesFile = new File(preferencesDir, PREFS_FILE);
+    if (preferencesFile.exists()) {
+      try {
+        String fileContent = loadFile(preferencesFile);
+        Document preferencesDoc = XmlTools.getDocument(fileContent);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        Node node = (Node) xPath.evaluate("//field[@name='language']/String/text()", preferencesDoc, XPathConstants.NODE);
+        return node.getNodeValue();
+      } catch (Exception e) {
+        System.err.println("Could not load language from " + preferencesFile + ": " + e.getMessage() + ", will use English for LanguageTool check");
+        e.printStackTrace();
+        return "en";
+      }
     } else {
-      uiLang = uiLang.replace('_', '-');
+      System.err.println("Warning: No preference file found at " + preferencesFile + ", will use English for LanguageTool check");
+      return "en";
     }
-    return uiLang;
+  }
+
+  private String loadFile(File file) throws FileNotFoundException {
+    StringBuilder sb = new StringBuilder();
+    Scanner sc = new Scanner(file);
+    try {
+      while (sc.hasNextLine()) {
+        sb.append(sc.nextLine());
+      }
+    } finally {
+      sc.close();
+    }
+    return sb.toString();
   }
 
   private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
@@ -190,7 +213,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       TextCollector textCollector = new TextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(contentNodes);
       try {
-        String langCode = getDefaultLanguageCode();
+        String langCode = getDefaultLanguageCode(authorEditorPage);
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
