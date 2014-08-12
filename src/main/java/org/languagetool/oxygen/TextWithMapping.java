@@ -28,7 +28,7 @@ class TextWithMapping {
 
   private String text;
 
-  private final Map<TextRange, TextRange> mapping = new HashMap<>();
+  private final Map<TextRange, TextRange> mapping = new HashMap<TextRange, TextRange>();
 
   void setText(String text) {
     this.text = text;
