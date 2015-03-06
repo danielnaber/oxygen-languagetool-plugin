@@ -19,6 +19,7 @@
 package org.languagetool.oxygen;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ro.sync.ecss.extensions.api.*;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
@@ -37,7 +38,6 @@ import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
-import javax.xml.soap.Node;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
