@@ -81,7 +81,7 @@ class LanguageToolClient {
   private void writeParameters(String urlParameters, HttpURLConnection connection) throws IOException {
     DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
     try {
-      wr.writeBytes(urlParameters);
+      wr.write(urlParameters.getBytes("UTF-8"));
     } finally {
       wr.flush();
       wr.close();
