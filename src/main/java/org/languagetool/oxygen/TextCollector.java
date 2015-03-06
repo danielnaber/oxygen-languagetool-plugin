@@ -48,6 +48,8 @@ class TextCollector {
       } else {
         isTextLevel = false;
       }
+      // TODO: this is wrong: it will skip over eg. "<s>this is <b>text</b></s>" -
+      //   see LanguageToolPluginExtension.checkText() instead
       if (isTextLevel) {
         TextRange textCheckRange = new TextRange(checkTextPos, checkTextPos + contentNode.getTextContent().length() + 1);
         TextRange oxygenRange = new TextRange(contentNode.getStartOffset(), contentNode.getEndOffset());

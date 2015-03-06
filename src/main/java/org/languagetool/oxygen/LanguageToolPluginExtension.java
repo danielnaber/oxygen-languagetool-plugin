@@ -21,16 +21,19 @@ package org.languagetool.oxygen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ro.sync.ecss.extensions.api.*;
+import ro.sync.ecss.extensions.api.content.TextContentIterator;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
 import ro.sync.ecss.extensions.api.node.AuthorDocument;
+import ro.sync.ecss.extensions.api.node.AuthorElement;
 import ro.sync.ecss.extensions.api.node.AuthorNode;
 import ro.sync.ecss.extensions.api.structure.AuthorPopupMenuCustomizer;
 import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
 import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
+import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
@@ -38,11 +41,16 @@ import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -85,9 +93,21 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         //TODO: highlight in text mode
         //see http://www.oxygenxml.com/forum/topic10704.html
         /*WSTextEditorPage currentPage = (WSTextEditorPage)editorAccess.getCurrentPage();
+        // TODO: What to check: Attribute values?
+        // How to find whether we're in text, not in markup?
         Object textComponent = currentPage.getTextComponent();
         if (textComponent instanceof JTextArea) {
            JTextArea textArea = (JTextArea) textComponent;
+            textArea.addKeyListener(new KeyListener() {
+              @Override
+              public void keyTyped(KeyEvent e) {}
+              @Override
+              public void keyPressed(KeyEvent e) {}
+              @Override
+              public void keyReleased(KeyEvent e) {
+                // see addAuthorListener() below
+              }
+            });
            Highlighter highlighter = textArea.getHighlighter();
           try {
             highlighter.addHighlight(from, to, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
@@ -208,7 +228,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     
     long startTime = System.currentTimeMillis();
     try {
-      AuthorDocument authorDocumentNode = authorEditorPage.getDocumentController().getAuthorDocumentNode();
+      AuthorDocumentController docController = authorEditorPage.getDocumentController();
+      AuthorDocument authorDocumentNode = docController.getAuthorDocumentNode();
+      /* TODO: use this instead of TextCollector:
+      TextContentIterator textContentIterator = docController.getTextContentIterator(0, docController.getAuthorDocumentNode().getEndOffset());
+      while (textContentIterator.hasNext()) {
+        System.out.println("#"+textContentIterator.next().getText() + "#");
+      }*/
       List<AuthorNode> contentNodes = authorDocumentNode.getContentNodes();
       TextCollector textCollector = new TextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(contentNodes);
