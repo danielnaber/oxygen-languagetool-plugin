@@ -224,8 +224,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           //System.out.println("Match: " + match.getOffsetStart() + "-" + match.getOffsetEnd() +
           //        " (Oxygen: " + start + "-"+ end + "): " + match.getMessage());
           highlighter.addHighlight(start, end, painter, match);
-          // TODO: underlining a single char doesn't seem possible, see http://www.oxygenxml.com/forum/viewtopic.php?f=1&t=10702
-          //highlighter.addHighlight(61, 61, painter, match);  -> doesn't underline anything. bug?
         }
         long endTime = System.currentTimeMillis();
         System.out.println("Check time: " + (endTime-startTime) + "ms for " + textWithMapping.getText().length() + " bytes, "
