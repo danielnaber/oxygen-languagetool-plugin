@@ -7,7 +7,7 @@ Major limitations, as this is just a prototype:
 
 * requires a [LanguageTool](http://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
 * works in Author mode only
-* requires clicking the "Check Text" button once
+* requires clicking the "LanguageTool Check" button once
 * uses the default language configured for the spell checker (ignores `lang` attributes)
 * simply checks anything not inside XML tags (has no advanced logic how to transform XML to plain text, as needed by LanguageTool)
 * ~~cannot highlight errors that affect only one character due to [a bug](http://www.oxygenxml.com/forum/topic10702.html) in Oxygen~~ fixed with Oxygen build 2014060420
@@ -24,7 +24,7 @@ latest release. Unzip it in the `plugins` directory of your Oxygen installation 
 
 ### Usage
 
-Load an XML file, switch to author mode, and click the "Check text" button (you only need to do this
+Load an XML file, switch to author mode, and click the "LanguageTool Check" button (you only need to do this
 once after loading a file). Errors that can be detected by LanguageTool should become underlined.
 
 ### Building

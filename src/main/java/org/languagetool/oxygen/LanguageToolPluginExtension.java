@@ -156,7 +156,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
             Collections.addAll(components, initialComponents);
           }
           ToolbarButton button = new ToolbarButton(checkTextAction, true);
-          button.setText("Check Text");
+          button.setText("LanguageTool Check");
           components.add(button);
           toolbarInfo.setComponents(components.toArray(new JComponent[components.size()]));
         }
