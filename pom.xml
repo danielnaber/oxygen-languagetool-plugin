@@ -37,10 +37,11 @@
     </build>
 
     <dependencies>
+        <!-- see http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration -->
         <dependency>
             <groupId>com.oxygenxml</groupId>
             <artifactId>oxygen</artifactId>
-            <version>16.0.0</version>
+            <version>16.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>
