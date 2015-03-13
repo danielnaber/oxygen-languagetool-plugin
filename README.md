@@ -4,6 +4,7 @@ oxygen-languagetool-plugin
 **Prototype** of a LanguageTool plugin for the Oxygen XML editor
 
 Major limitations, as this is just a prototype:
+
 * requires a [LanguageTool](http://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
 * works in Author mode only
 * requires clicking the "Check Text" button once
@@ -36,6 +37,8 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 
 ### Changelog
 
+* 2015-03-06:
+    * fixes for texts with special characters
 * 2014-08-12:
     * works with Java 1.6
     * some cleanups
