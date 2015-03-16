@@ -58,7 +58,7 @@ class LanguageToolClient {
       String xml = streamToString(inputStream, "utf-8");
       return parseXml(xml, text);
     } catch (Exception e) {
-      throw new RuntimeException("Could not check text at URL '" + url + "'", e);
+      throw new RuntimeException("Could not check text using LanguageTool server at URL '" + url + "'", e);
     } finally {
       if (connection != null) {
         connection.disconnect();
