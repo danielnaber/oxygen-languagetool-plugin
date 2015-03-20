@@ -18,21 +18,21 @@
  */
 package org.languagetool.oxygen;
 
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ro.sync.ecss.extensions.api.*;
-import ro.sync.ecss.extensions.api.content.TextContentIterator;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
 import ro.sync.ecss.extensions.api.node.AuthorDocument;
-import ro.sync.ecss.extensions.api.node.AuthorElement;
 import ro.sync.ecss.extensions.api.node.AuthorNode;
 import ro.sync.ecss.extensions.api.structure.AuthorPopupMenuCustomizer;
 import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
 import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
+import ro.sync.exml.workspace.api.editor.page.text.TextPopupMenuCustomizer;
 import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
@@ -40,23 +40,19 @@ import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
 import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.awt.*;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
@@ -67,11 +63,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
+  private final HighlightData highlightData = new HighlightData();
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
+  private TextPopupMenuCustomizer textPopupMenuCustomizer;
   private Timer timer;
-  
+
   @Override
   public void applicationStarted(final StandalonePluginWorkspace pluginWorkspaceAccess) {
     pluginWorkspaceAccess.setGlobalObjectProperty("can.edit.read.only.files", Boolean.FALSE);
@@ -90,15 +88,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       }
 
       private void setupHighlightingForTextMode(WSEditor editorAccess) {
-        //TODO: highlight in text mode
-        //see http://www.oxygenxml.com/forum/topic10704.html
-        /*WSTextEditorPage currentPage = (WSTextEditorPage)editorAccess.getCurrentPage();
-        // TODO: What to check: Attribute values?
-        // How to find whether we're in text, not in markup?
+        // also see http://www.oxygenxml.com/forum/topic10704.html
+        WSTextEditorPage currentPage = (WSTextEditorPage)editorAccess.getCurrentPage();
         Object textComponent = currentPage.getTextComponent();
         if (textComponent instanceof JTextArea) {
-           JTextArea textArea = (JTextArea) textComponent;
-            textArea.addKeyListener(new KeyListener() {
+          JTextArea textArea = (JTextArea) textComponent;
+          // TODO: activate if it's fast enough:
+          /*textArea.addKeyListener(new KeyListener() {
               @Override
               public void keyTyped(KeyEvent e) {}
               @Override
@@ -107,22 +103,17 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
               public void keyReleased(KeyEvent e) {
                 // see addAuthorListener() below
               }
-            });
-           Highlighter highlighter = textArea.getHighlighter();
-          try {
-            highlighter.addHighlight(from, to, new DefaultHighlighter.DefaultHighlightPainter(Color.RED));
-          } catch (BadLocationException e) {
-            e.printStackTrace();
-          }
-        }*/
+          });*/
+          checkText(textArea, currentPage, pluginWorkspaceAccess);
+        }
       }
       
       private void setupHighlightingForAuthorMode(WSEditor editorAccess) {
         final WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
-        if(authorPopupMenuCustomizer != null) {
+        if (authorPopupMenuCustomizer != null) {
           authorPageAccess.removePopUpMenuCustomizer(authorPopupMenuCustomizer);
         }
-        authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizer();
+        authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
         authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
         final AuthorDocumentController controller = authorPageAccess.getDocumentController();
         final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
@@ -130,18 +121,18 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           @Override
           public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
             // "A new document has been set into the author page."
-            checkTextInBackground(highlighter, authorPageAccess);
+            checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
           }
           @Override
           public void contentDeleted(DocumentContentDeletedEvent documentContentDeletedEvent) {
-            checkTextInBackground(highlighter, authorPageAccess);
+            checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
           }
           @Override
           public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
-            checkTextInBackground(highlighter, authorPageAccess);
+            checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
           }
         });
-        checkTextInBackground(highlighter, authorPageAccess);
+        checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
       }
     };
 
@@ -167,8 +158,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   // We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
   // so we access the file on disk:
-  private String getDefaultLanguageCode(WSAuthorEditorPage authorEditorPage) {
-    String preferencesDir = authorEditorPage.getAuthorAccess().getWorkspaceAccess().getPreferencesDirectory();
+  private String getDefaultLanguageCode(StandalonePluginWorkspace pluginWorkspaceAccess) {
+    String preferencesDir = pluginWorkspaceAccess.getPreferencesDirectory();
     File preferencesFile = new File(preferencesDir, PREFS_FILE);
     if (preferencesFile.exists()) {
       try {
@@ -201,17 +192,15 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     return sb.toString();
   }
 
-  private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
-    if (timer != null) {
-      timer.stop();
-    }
+  private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage, final StandalonePluginWorkspace pluginWorkspaceAccess) {
+    stopTimer();
     timer = new Timer(MIN_WAIT_MILLIS, new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         new Thread(new Runnable() {
           @Override
           public void run() {
-            checkText(highlighter, authorEditorPage);
+            checkText(highlighter, authorEditorPage, pluginWorkspaceAccess);
           }
         }).start();
       }
@@ -219,13 +208,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     timer.start();
   }
   
-  private void checkText(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
-    synchronized (this) {
-      if (timer != null) {
-        timer.stop();
-      }
-    }
-    
+  private void checkText(AuthorHighlighter highlighter, WSAuthorEditorPage authorEditorPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
+    stopTimer();
     long startTime = System.currentTimeMillis();
     try {
       AuthorDocumentController docController = authorEditorPage.getDocumentController();
@@ -240,7 +224,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       TextCollector textCollector = new TextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(contentNodes);
       try {
-        String langCode = getDefaultLanguageCode(authorEditorPage);
+        String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
@@ -263,14 +247,61 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
+  private void checkText(JTextArea textArea, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
+    stopTimer();
+    long startTime = System.currentTimeMillis();
+    try {
+      String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
+      Highlighter highlighter = textArea.getHighlighter();
+      try {
+
+        highlighter.removeAllHighlights();
+        ro.sync.exml.view.graphics.Color painterColor = new ColorHighlightPainter().getColor();
+        Color markerColor = new Color(painterColor.getRed(), painterColor.getGreen(), painterColor.getBlue());
+
+        TextModeTextCollector textCollector = new TextModeTextCollector();
+        TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
+        List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
+        for (RuleMatch ruleMatch : ruleMatches) {
+          int start = ruleMatch.getOxygenOffsetStart() - 1;
+          int end = ruleMatch.getOxygenOffsetEnd();
+          Object highlight = highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));
+          highlightData.addInfo(new HighlightInfo(start, end, ruleMatch, highlight));
+        }
+
+        if (textPopupMenuCustomizer != null) {
+          currentPage.removePopUpMenuCustomizer(textPopupMenuCustomizer);
+        }
+        textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText();
+        currentPage.addPopUpMenuCustomizer(textPopupMenuCustomizer);
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Check time: " + (endTime-startTime) + "ms for " + textWithMapping.getText().length() + " bytes, "
+                + ruleMatches.size() + " matches, language: " + langCode);
+
+      } catch (BadLocationException e) {
+        e.printStackTrace();
+      }
+    } catch (Exception e) {
+      showErrorDialog(e);
+    }
+  }
+
+  private void stopTimer() {
+    synchronized (this) {
+      if (timer != null) {
+        timer.stop();
+      }
+    }
+  }
+
   private void showErrorDialog(Exception e) {
     e.printStackTrace();
     String msg = e.getMessage() + "\n(See console output for full stacktrace.)";
     JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
   }
 
-  private void addMenuItems(JPopupMenu popUp, Highlight highlight, Action action) {
-    RuleMatch match = (RuleMatch)highlight.getAdditionalData();
+  private void addMenuItems(JPopupMenu popUp, RuleMatch match, Action action) {
     JMenuItem menuItem = new JMenuItem(match.getMessage());
     popUp.add(menuItem);
     int replacementCount = 1;
@@ -289,7 +320,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     return true;
   }
   
-  class ApplyReplacementMenuCustomizer implements AuthorPopupMenuCustomizer {
+  class ApplyReplacementMenuCustomizerForAuthor implements AuthorPopupMenuCustomizer {
     @Override
     public void customizePopUpMenu(Object popUp, AuthorAccess authorAccess) {
       Highlight[] highlights = authorAccess.getEditorAccess().getHighlighter().getHighlights();
@@ -297,23 +328,78 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       for (Highlight highlight : highlights) {
         if (caretOffset >= highlight.getStartOffset() && caretOffset <= highlight.getEndOffset()) {
           RuleMatch match = (RuleMatch) highlight.getAdditionalData();
-          addMenuItems((JPopupMenu) popUp, highlight, new ApplyReplacementAction(match, highlight, authorAccess));
+          addMenuItems((JPopupMenu) popUp, match, new AuthorModeApplyReplacementAction(match, highlight, authorAccess));
           break;
         }
       }
     }
   }
 
-  class ApplyReplacementAction extends AbstractAction {
+  class ApplyReplacementMenuCustomizerForText extends TextPopupMenuCustomizer {
+    @Override
+    public void customizePopUpMenu(Object popUp, WSTextEditorPage textPage) {
+      Object textComponent = textPage.getTextComponent();
+      if (textComponent instanceof JTextArea) {
+        int caretOffset = textPage.getCaretOffset();
+        HighlightInfo hInfo = highlightData.getInfoForCaretOrNull(caretOffset);
+        if (hInfo != null) {
+          RuleMatch match = hInfo.ruleMatch;
+          addMenuItems((JPopupMenu) popUp, match, new TextModeApplyReplacementAction(match, hInfo.highlight, textPage));
+        }
+      } else {
+        System.err.println("textComponent not of type JTextArea: " + textComponent.getClass().getName());
+      }
+    }
+  }
+
+  /**
+   * In text mode, we cannot add the additional info we need (the matching rule) to a highlight,
+   * so we keep it here.
+   */
+  class HighlightData {
+
+    private final List<HighlightInfo> infos = new ArrayList<HighlightInfo>();
+
+    void addInfo(HighlightInfo info) {
+      infos.add(info);
+    }
+
+    @Nullable
+    HighlightInfo getInfoForCaretOrNull(int caretOffset) {
+      for (HighlightInfo highlight : infos) {
+        if (caretOffset >= highlight.startOffset && caretOffset <= highlight.endOffset) {
+          return highlight;
+        }
+      }
+      return null;
+    }
+  }
+
+  class HighlightInfo {
+
+    private final int startOffset;
+    private final int endOffset;
+    private final RuleMatch ruleMatch;
+    private final Object highlight;
+
+    HighlightInfo(int startOffset, int endOffset, RuleMatch ruleMatch, Object highlight) {
+      this.startOffset = startOffset;
+      this.endOffset = endOffset;
+      this.ruleMatch = Objects.requireNonNull(ruleMatch);
+      this.highlight = Objects.requireNonNull(highlight);
+    }
+  }
+
+  class AuthorModeApplyReplacementAction extends AbstractAction {
     
     private final RuleMatch match;
     private final Highlight highlight;
     private final AuthorAccess authorAccess;
 
-    ApplyReplacementAction(RuleMatch match, Highlight highlight, AuthorAccess authorAccess) {
-      this.match = match;
-      this.highlight = highlight;
-      this.authorAccess = authorAccess;
+    AuthorModeApplyReplacementAction(RuleMatch match, Highlight highlight, AuthorAccess authorAccess) {
+      this.match = Objects.requireNonNull(match);
+      this.highlight = Objects.requireNonNull(highlight);
+      this.authorAccess = Objects.requireNonNull(authorAccess);
     }
 
     @Override
@@ -332,6 +418,32 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         }
       } finally {
         controller.endCompoundEdit();
+      }
+    }
+
+  }
+
+  class TextModeApplyReplacementAction extends AbstractAction {
+
+    private final RuleMatch match;
+    private final Object textHighlight;
+    private final WSTextEditorPage textPage;
+
+    TextModeApplyReplacementAction(RuleMatch match, Object highlight, WSTextEditorPage textPage) {
+      this.match = Objects.requireNonNull(match);
+      this.textHighlight = Objects.requireNonNull(highlight);
+      this.textPage = Objects.requireNonNull(textPage);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+      //TODO:
+      //controller.beginCompoundEdit();
+      Object textComponent = textPage.getTextComponent();
+      if (textComponent instanceof JTextArea) {
+        JTextArea textArea = (JTextArea) textComponent;
+        textArea.getHighlighter().removeHighlight(textHighlight);
+        textArea.replaceRange(event.getActionCommand(), match.getOxygenOffsetStart() - 1, match.getOxygenOffsetEnd());
       }
     }
 

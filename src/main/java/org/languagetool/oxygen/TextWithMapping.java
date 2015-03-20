@@ -42,6 +42,11 @@ class TextWithMapping {
     return text;
   }
 
+  /** Use for tests only. */
+  Map<TextRange, TextRange> getMapping() {
+    return mapping;
+  }
+
   int getOxygenPositionFor(int offset) {
     for (Map.Entry<TextRange, TextRange> entry : mapping.entrySet()) {
       TextRange langToolRange = entry.getKey();
