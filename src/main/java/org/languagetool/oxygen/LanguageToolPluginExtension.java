@@ -63,7 +63,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
-  private final HighlightData highlightData = new HighlightData();
+  private final HighlightData highlightData = new HighlightData();  // TODO: one per editorAccess.getEditorLocation()
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
