@@ -26,9 +26,9 @@ import java.util.Map;
  */
 class TextWithMapping {
 
-  private String text;
-
   private final Map<TextRange, TextRange> mapping = new HashMap<TextRange, TextRange>();
+
+  private String text;
 
   void setText(String text) {
     this.text = text;
@@ -56,7 +56,7 @@ class TextWithMapping {
         return oxygenRange.getFrom() + subOffset;
       }
     }
-    throw new RuntimeException("Could not map offset " + offset + ", not found in mapping of size " + mapping.size());
+    throw new RuntimeException("Could not map offset " + offset + ", not found in mapping of size " + mapping.size() + ": " + mapping);
   }
 
   @Override

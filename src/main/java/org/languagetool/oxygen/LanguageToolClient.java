@@ -36,7 +36,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Access to a LanguageTool instance via HTTP.
+ * Access to a LanguageTool instance via HTTP. Note that the rule that
+ * checks for whitespace repetition is disabled, as it causes false
+ * alarms in XML (at least the way we 'analyze' the XML).
  */
 class LanguageToolClient {
 
@@ -49,7 +51,7 @@ class LanguageToolClient {
   List<RuleMatch> checkText(TextWithMapping text, String langCode) {
     HttpURLConnection connection = null;
     try {
-      String urlParameters = "language=" + langCode.replace('_', '-') + "&text=" + text.getText();
+      String urlParameters = "language=" + langCode.replace('_', '-') + "&text=" + text.getText() + "&disabled=WHITESPACE_RULE";
       URL languageToolUrl = new URL(url);
       connection = openConnection(languageToolUrl);
       writeParameters(urlParameters, connection);
@@ -135,8 +137,13 @@ class LanguageToolClient {
     int offset = Integer.parseInt(offsetStr);
     int length = Integer.parseInt(lengthStr);
     RuleMatch ruleMatch = new RuleMatch(message, offset, offset + length, replacements);
-    ruleMatch.setOxygenOffsetStart(text.getOxygenPositionFor(offset) + 1);
-    ruleMatch.setOxygenOffsetEnd(text.getOxygenPositionFor(offset + length));
+    try {
+      ruleMatch.setOxygenOffsetStart(text.getOxygenPositionFor(offset) + 1);
+      ruleMatch.setOxygenOffsetEnd(text.getOxygenPositionFor(offset + length - 1) + 1);
+    } catch (Exception e) {
+      throw new RuntimeException("Could not map start or end offset of rule match '" +
+              ruleMatch.getMessage() + "': " + offset + "-" + (offset + length - 1), e);
+    }
     return ruleMatch;
   }
 

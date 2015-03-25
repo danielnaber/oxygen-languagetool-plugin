@@ -40,4 +40,21 @@ class TextRange {
   public String toString() {
     return from + "-" + to;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    TextRange textRange = (TextRange) o;
+    if (from != textRange.from) return false;
+    if (to != textRange.to) return false;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = from;
+    result = 31 * result + to;
+    return result;
+  }
 }

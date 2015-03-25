@@ -32,7 +32,6 @@ public class TextModeTextCollectorTest {
     assertThat(textCollector.collectTexts("<t></t>").getText(), is(""));
     assertThat(textCollector.collectTexts("<t>x</t>").getText(), is("x"));
     assertThat(textCollector.collectTexts("<t>öäü</t>").getText(), is("öäü"));
-
     assertThat(textCollector.collectTexts("<t>a<nested>bc</nested></t>").getText(), is("abc"));
     assertThat(textCollector.collectTexts("<t>a<nested>bc</nested><foo test='attrib'>ddd</foo></t>").getText(), is("abcddd"));
   }
@@ -41,6 +40,7 @@ public class TextModeTextCollectorTest {
   public void testMapping1() {
     TextModeTextCollector textCollector = new TextModeTextCollector();
     TextWithMapping mapping = textCollector.collectTexts("<t>x</t>");
+    assertThat(mapping.getText(), is("x"));
     assertThat(mapping.getMapping().size(), is(1));
     assertThat(mapping.getMapping().toString(), is("{0-1=3-4}"));
   }
@@ -51,7 +51,65 @@ public class TextModeTextCollectorTest {
     TextWithMapping mapping = textCollector.collectTexts("<t>xyz\n<foo att='val'>abc</foo></t>");
     assertThat(mapping.getMapping().size(), is(2));
     String mapStr = mapping.getMapping().toString();
+    assertThat(mapping.getText(), is("xyz\nabc"));
     assertTrue("Got: " + mapStr, mapStr.contains("0-4=3-7"));
     assertTrue("Got: " + mapStr, mapStr.contains("4-7=22-25"));
+  }
+
+  @Test
+  public void testMappingWithWhitespace1() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts(
+            "<r>\n" +
+            "  <c></c>\n" +
+            "</r>\n");
+    assertThat(mapping.getText(), is("\n  \n\n"));
+    assertThat(mapping.getMapping().size(), is(3));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-3=3-6"));
+    assertTrue("Got: " + mapStr, mapStr.contains("3-4=13-14"));
+    assertTrue("Got: " + mapStr, mapStr.contains("4-5=18-19"));
+  }
+
+  @Test
+  public void testMappingWithWhitespace2() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts("<r>  <e>XX</e></r>");
+    assertThat(mapping.getText(), is("  XX"));
+    assertThat(mapping.getMapping().size(), is(2));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-2=3-5"));
+    assertTrue("Got: " + mapStr, mapStr.contains("2-4=8-10"));
+  }
+
+  @Test
+  public void testMappingWithWhitespace3() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts("<t>\n  <e>X</e></t>");
+    assertThat(mapping.getText(), is("\n  X"));
+    assertThat(mapping.getMapping().size(), is(2));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-3=3-6"));
+    assertTrue("Got: " + mapStr, mapStr.contains("3-4=9-10"));
+  }
+
+  @Test
+  public void testMappingWithEntities() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<!DOCTYPE rules [\n" +
+            "    <!ENTITY myEntity \"den\">\n" +
+            "]>\n" +
+            "<rules>\n" +
+            "  <example>Bla.</example>\n" +
+            "</rules>\n");
+    assertThat(mapping.getText(), is("\n\n\n  Bla.\n\n"));
+    assertThat(mapping.getMapping().size(), is(6));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-1=38-61"));
+    assertTrue("Got: " + mapStr, mapStr.contains("2-5=96-99"));
+    assertTrue("Got: " + mapStr, mapStr.contains("5-9=108-112"));
+    assertTrue("Got: " + mapStr, mapStr.contains("9-10=122-123"));
   }
 }

@@ -26,14 +26,14 @@ class TextModeTextCollector {
   TextWithMapping collectTexts(String content) {
     StringBuilder sb = new StringBuilder();
     TextWithMapping mapping = new TextWithMapping();
-    boolean inTag = false;
+    int inTag = 0;
     int xmlStart = 0;
     int plainTextStart = 0;
     for (int i = 0; i < content.length(); i++) {
       char c = content.charAt(i);
       // TODO: <!-- ... -->
       if (c == '<') {
-        inTag = true;
+        inTag++;
         if (i - xmlStart > 0) {
           TextRange xmlRange = new TextRange(xmlStart, i);
           TextRange plainTextRange = new TextRange(plainTextStart, sb.length());
@@ -41,14 +41,20 @@ class TextModeTextCollector {
           mapping.addMapping(plainTextRange, xmlRange);
         }
       } else if (c == '>') {
-        inTag = false;
+        inTag--;
         xmlStart = i + 1;
         plainTextStart = sb.length();
       } else {
-        if (!inTag) {
+        if (inTag == 0) {
           sb.append(c);
         }
       }
+    }
+    if (sb.length() > 0 && xmlStart != content.length()) {
+      // also map remaining text (typically whitespace) after the last tag:
+      TextRange xmlRange = new TextRange(xmlStart, content.length());
+      TextRange plainTextRange = new TextRange(plainTextStart, sb.length());
+      mapping.addMapping(plainTextRange, xmlRange);
     }
     mapping.setText(sb.toString());
     return mapping;
