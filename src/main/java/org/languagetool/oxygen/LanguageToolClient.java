@@ -30,6 +30,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,7 +52,10 @@ class LanguageToolClient {
   List<RuleMatch> checkText(TextWithMapping text, String langCode) {
     HttpURLConnection connection = null;
     try {
-      String urlParameters = "language=" + langCode.replace('_', '-') + "&text=" + text.getText() + "&disabled=WHITESPACE_RULE";
+      String urlParameters =
+              "language=" + langCode.replace('_', '-') +
+              "&text=" + URLEncoder.encode(text.getText(), "utf-8") +
+              "&disabled=WHITESPACE_RULE";
       URL languageToolUrl = new URL(url);
       connection = openConnection(languageToolUrl);
       writeParameters(urlParameters, connection);
@@ -130,7 +134,7 @@ class LanguageToolClient {
     NamedNodeMap attributes = errorNode.getAttributes();
     String message = attributes.getNamedItem("msg").getNodeValue();
     Node replacementAttribute = attributes.getNamedItem("replacements");
-    List<String> replacements = replacementAttribute != null ? 
+    List<String> replacements = replacementAttribute != null ?
             Arrays.asList(replacementAttribute.getNodeValue().split("#")) : Collections.<String>emptyList();
     String offsetStr = attributes.getNamedItem("offset").getNodeValue();
     String lengthStr = attributes.getNamedItem("errorlength").getNodeValue();
