@@ -53,12 +53,12 @@ class TextModeTextCollector {
     return mapping;
   }
 
-  class XmlHandler extends DefaultHandler {
+  static class XmlHandler extends DefaultHandler {
 
     private final StringBuilder sb = new StringBuilder();
     private final TextWithMapping mapping;
 
-    public XmlHandler(TextWithMapping mapping) {
+    XmlHandler(TextWithMapping mapping) {
       this.mapping = mapping;
     }
 

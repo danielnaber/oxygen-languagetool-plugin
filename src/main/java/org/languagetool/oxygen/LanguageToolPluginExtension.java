@@ -356,7 +356,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
    * In text mode, we cannot add the additional info we need (the matching rule) to a highlight,
    * so we keep it here.
    */
-  class HighlightData {
+  static class HighlightData {
 
     private final List<HighlightInfo> infos = new ArrayList<HighlightInfo>();
 
@@ -375,7 +375,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
-  class HighlightInfo {
+  static class HighlightInfo {
 
     private final int startOffset;
     private final int endOffset;
@@ -391,7 +391,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   class AuthorModeApplyReplacementAction extends AbstractAction {
-    
+
     private final RuleMatch match;
     private final Highlight highlight;
     private final AuthorAccess authorAccess;
@@ -423,7 +423,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   }
 
-  class TextModeApplyReplacementAction extends AbstractAction {
+  static class TextModeApplyReplacementAction extends AbstractAction {
 
     private final RuleMatch match;
     private final Object textHighlight;
