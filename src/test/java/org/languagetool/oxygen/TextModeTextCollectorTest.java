@@ -38,10 +38,20 @@ public class TextModeTextCollectorTest {
   }
 
   @Test
-  public void testMapping() {
+  public void testMapping1() {
     TextModeTextCollector textCollector = new TextModeTextCollector();
     TextWithMapping mapping = textCollector.collectTexts("<t>x</t>");
     assertThat(mapping.getMapping().size(), is(1));
     assertThat(mapping.getMapping().toString(), is("{0-1=3-4}"));
+  }
+
+  @Test
+  public void testMapping2() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts("<t>xyz\n<foo att='val'>abc</foo></t>");
+    assertThat(mapping.getMapping().size(), is(2));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-4=3-7"));
+    assertTrue("Got: " + mapStr, mapStr.contains("4-7=22-25"));
   }
 }

@@ -254,7 +254,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
       Highlighter highlighter = textArea.getHighlighter();
       try {
-
+        highlightData.clear();
         highlighter.removeAllHighlights();
         ro.sync.exml.view.graphics.Color painterColor = new ColorHighlightPainter().getColor();
         Color markerColor = new Color(painterColor.getRed(), painterColor.getGreen(), painterColor.getBlue());
@@ -359,6 +359,10 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   static class HighlightData {
 
     private final List<HighlightInfo> infos = new ArrayList<HighlightInfo>();
+
+    void clear() {
+      infos.clear();
+    }
 
     void addInfo(HighlightInfo info) {
       infos.add(info);

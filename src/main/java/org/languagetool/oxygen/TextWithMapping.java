@@ -51,7 +51,7 @@ class TextWithMapping {
     for (Map.Entry<TextRange, TextRange> entry : mapping.entrySet()) {
       TextRange langToolRange = entry.getKey();
       TextRange oxygenRange = entry.getValue();
-      if (offset >= langToolRange.getFrom() && offset <= langToolRange.getTo()) {
+      if (offset >= langToolRange.getFrom() && offset < langToolRange.getTo()) {
         int subOffset = offset - langToolRange.getFrom();
         return oxygenRange.getFrom() + subOffset;
       }

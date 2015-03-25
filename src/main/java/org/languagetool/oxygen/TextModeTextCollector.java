@@ -18,60 +18,40 @@
  */
 package org.languagetool.oxygen;
 
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.IOException;
-import java.io.StringReader;
-
 /**
  * Collects the text part of a Text view in Oxygen.
  */
 class TextModeTextCollector {
 
   TextWithMapping collectTexts(String content) {
+    StringBuilder sb = new StringBuilder();
     TextWithMapping mapping = new TextWithMapping();
-    XmlHandler handler = new XmlHandler(mapping);
-    final SAXParserFactory factory = SAXParserFactory.newInstance();
-    try {
-      final SAXParser saxParser = factory.newSAXParser();
-      saxParser.getXMLReader().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      saxParser.parse(new InputSource(new StringReader(content)), handler);
-      mapping.setText(handler.sb.toString());
-    } catch (ParserConfigurationException e) {
-      // TODO: ???
-      e.printStackTrace();
-    } catch (SAXException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+    boolean inTag = false;
+    int xmlStart = 0;
+    int plainTextStart = 0;
+    for (int i = 0; i < content.length(); i++) {
+      char c = content.charAt(i);
+      // TODO: <!-- ... -->
+      if (c == '<') {
+        inTag = true;
+        if (i - xmlStart > 0) {
+          TextRange xmlRange = new TextRange(xmlStart, i);
+          TextRange plainTextRange = new TextRange(plainTextStart, sb.length());
+          //System.out.println("MAP: " + plainTextRange + " -> " + xmlRange);
+          mapping.addMapping(plainTextRange, xmlRange);
+        }
+      } else if (c == '>') {
+        inTag = false;
+        xmlStart = i + 1;
+        plainTextStart = sb.length();
+      } else {
+        if (!inTag) {
+          sb.append(c);
+        }
+      }
     }
+    mapping.setText(sb.toString());
     return mapping;
-  }
-
-  static class XmlHandler extends DefaultHandler {
-
-    private final StringBuilder sb = new StringBuilder();
-    private final TextWithMapping mapping;
-
-    XmlHandler(TextWithMapping mapping) {
-      this.mapping = mapping;
-    }
-
-    @Override
-    public void characters(final char[] buf, final int offset, final int len) {
-      //System.out.println(offset + ", l:" + len + " -> " + new String(buf, offset, len));
-      TextRange plainTextRange = new TextRange(sb.length(), sb.length() + len);
-      TextRange xmlRange = new TextRange(offset, offset + len);
-      //System.out.println("MAP: " + plainTextRange + " -> " + xmlRange);
-      sb.append(new String(buf, offset, len));
-      mapping.addMapping(plainTextRange, xmlRange);
-      // TODO: where to add spaces?
-    }
   }
 
 }
