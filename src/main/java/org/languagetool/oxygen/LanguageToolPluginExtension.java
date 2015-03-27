@@ -463,8 +463,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
     @Override
     public void actionPerformed(ActionEvent event) {
-      //TODO:
-      //controller.beginCompoundEdit();
       Object textComponent = textPage.getTextComponent();
       if (textComponent instanceof JTextArea) {
         JTextArea textArea = (JTextArea) textComponent;
