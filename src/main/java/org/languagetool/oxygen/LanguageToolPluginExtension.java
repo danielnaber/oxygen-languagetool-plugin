@@ -63,7 +63,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
-  private final HighlightData highlightData = new HighlightData();  // TODO: one per editorAccess.getEditorLocation()
+  private final HighlightData highlightData = new HighlightData();
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
@@ -104,7 +104,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
                 // see addAuthorListener() below
               }
           });*/
-          checkText(textArea, currentPage, pluginWorkspaceAccess);
+          checkText(textArea, editorAccess, currentPage, pluginWorkspaceAccess);
         }
       }
       
@@ -247,14 +247,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
-  private void checkText(JTextArea textArea, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
+  private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
     stopTimer();
     long startTime = System.currentTimeMillis();
     try {
       String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
       Highlighter highlighter = textArea.getHighlighter();
       try {
-        highlightData.clear();
+        highlightData.clear(editorAccess);
         highlighter.removeAllHighlights();
         ro.sync.exml.view.graphics.Color painterColor = new ColorHighlightPainter().getColor();
         Color markerColor = new Color(painterColor.getRed(), painterColor.getGreen(), painterColor.getBlue());
@@ -266,13 +266,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           int start = ruleMatch.getOxygenOffsetStart() - 1;
           int end = ruleMatch.getOxygenOffsetEnd();
           Object highlight = highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));
-          highlightData.addInfo(new HighlightInfo(start, end, ruleMatch, highlight));
+          highlightData.addInfo(new HighlightInfo(start, end, ruleMatch, highlight), editorAccess);
         }
 
         if (textPopupMenuCustomizer != null) {
           currentPage.removePopUpMenuCustomizer(textPopupMenuCustomizer);
         }
-        textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText();
+        textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText(editorAccess);
         currentPage.addPopUpMenuCustomizer(textPopupMenuCustomizer);
 
         long endTime = System.currentTimeMillis();
@@ -341,12 +341,16 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   class ApplyReplacementMenuCustomizerForText extends TextPopupMenuCustomizer {
+    private final WSEditor editorAccess;
+    ApplyReplacementMenuCustomizerForText(WSEditor editorAccess) {
+      this.editorAccess = editorAccess;
+    }
     @Override
     public void customizePopUpMenu(Object popUp, WSTextEditorPage textPage) {
       Object textComponent = textPage.getTextComponent();
       if (textComponent instanceof JTextArea) {
         int caretOffset = textPage.getCaretOffset();
-        HighlightInfo hInfo = highlightData.getInfoForCaretOrNull(caretOffset);
+        HighlightInfo hInfo = highlightData.getInfoForCaretOrNull(caretOffset, editorAccess);
         if (hInfo != null) {
           RuleMatch match = hInfo.ruleMatch;
           addMenuItems((JPopupMenu) popUp, match, new TextModeApplyReplacementAction(match, hInfo.highlight, textPage));
@@ -363,19 +367,32 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
    */
   static class HighlightData {
 
+    private final Map<String,HighlightData> highlightData = new HashMap<String,HighlightData>();  // editorAccess.getEditorLocation() -> HighlightData for that editor
     private final List<HighlightInfo> infos = new ArrayList<HighlightInfo>();
 
-    void clear() {
-      infos.clear();
+    void clear(WSEditor editor) {
+      HighlightData data = highlightData.get(editor.getEditorLocation().toString());
+      if (data != null) {
+        data.infos.clear();
+      }
     }
 
-    void addInfo(HighlightInfo info) {
-      infos.add(info);
+    void addInfo(HighlightInfo info, WSEditor editor) {
+      String key = editor.getEditorLocation().toString();
+      if (!highlightData.containsKey(key)) {
+        highlightData.put(key, new HighlightData());
+      }
+      HighlightData data = highlightData.get(key);
+      data.infos.add(info);
     }
 
     @Nullable
-    HighlightInfo getInfoForCaretOrNull(int caretOffset) {
-      for (HighlightInfo highlight : infos) {
+    HighlightInfo getInfoForCaretOrNull(int caretOffset, WSEditor editor) {
+      HighlightData data = highlightData.get(editor.getEditorLocation().toString());
+      if (data == null) {
+        throw new NullPointerException("Could not find '" + editor.getEditorLocation() + "' in map keySet: " + highlightData.keySet());
+      }
+      for (HighlightInfo highlight : data.infos) {
         if (caretOffset >= highlight.startOffset && caretOffset <= highlight.endOffset) {
           return highlight;
         }
