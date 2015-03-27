@@ -6,12 +6,13 @@ oxygen-languagetool-plugin
 Major limitations, as this is just a prototype:
 
 * requires a [LanguageTool](http://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
-* works in Author mode only
+* in text mode, XML comments are ignored
+* in text mode, it will not properly work on invalid XML
 * requires clicking the "LanguageTool Check" button once
 * uses the default language configured for the spell checker (ignores `lang` attributes)
 * simply checks anything not inside XML tags (has no advanced logic how to transform XML to plain text, as needed by LanguageTool)
 * ~~cannot highlight errors that affect only one character due to [a bug](http://www.oxygenxml.com/forum/topic10702.html) in Oxygen~~ fixed with Oxygen build 2014060420
-* tested with Oxygen 16.0 only
+* tested with Oxygen 16.1 only
 
 Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free license.
 
