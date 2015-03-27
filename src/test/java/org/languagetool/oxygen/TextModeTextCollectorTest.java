@@ -112,4 +112,44 @@ public class TextModeTextCollectorTest {
     assertTrue("Got: " + mapStr, mapStr.contains("5-9=108-112"));
     assertTrue("Got: " + mapStr, mapStr.contains("9-10=122-123"));
   }
+
+  @Test
+  public void testIgnoreComments1() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts(
+            "<t>\n<!-- <b -->foo <b>bar</b></t>");
+    assertThat(mapping.getText(), is("\nfoo bar"));
+    assertThat(mapping.getMapping().size(), is(2));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-5=3-19"));
+    assertTrue("Got: " + mapStr, mapStr.contains("5-8=22-25"));
+  }
+
+  @Test
+  public void testIgnoreComments2() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts(
+            "<t>\n<!-- b> -->foo <b>bar</b></t>");
+    assertThat(mapping.getText(), is("\nfoo bar"));
+    assertThat(mapping.getMapping().size(), is(2));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-5=3-19"));
+    assertTrue("Got: " + mapStr, mapStr.contains("5-8=22-25"));
+  }
+
+  @Test
+  public void testCommentsCornerCases() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    // just make sure not to crash:
+    textCollector.collectTexts("<!-- -->");
+    textCollector.collectTexts("<!-- b> -->");
+    textCollector.collectTexts("<!-- <b> -->");
+    textCollector.collectTexts("<!-- <> -->");
+    textCollector.collectTexts("<!--\n-->");
+    textCollector.collectTexts("<!--");
+    textCollector.collectTexts("<!-- ");
+    textCollector.collectTexts("-->");
+    textCollector.collectTexts(" -->");
+  }
+
 }
