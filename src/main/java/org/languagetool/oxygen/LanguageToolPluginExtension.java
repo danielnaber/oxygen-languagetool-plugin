@@ -215,7 +215,11 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       AuthorDocumentController docController = authorEditorPage.getDocumentController();
       AuthorDocument authorDocumentNode = docController.getAuthorDocumentNode();
       /* TODO: use this instead of TextCollector:
-      //Why does this include some PI (processing instruction)?
+      //Why does this include some PI (processing instruction)? for input like:
+      //  <?xml version="1.0" encoding="UTF-8"?>
+      //  <?xml-stylesheet type="text/css" href="/lt/rules.css" title="..."?>
+      // =>
+      //  xml-stylesheet type="text/css" href="/lt/rules.css" title="..."
       TextContentIterator textContentIterator = docController.getTextContentIterator(0, docController.getAuthorDocumentNode().getEndOffset());
       while (textContentIterator.hasNext()) {
         System.out.println("#"+textContentIterator.next().getText() + "#");
