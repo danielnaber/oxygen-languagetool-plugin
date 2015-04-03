@@ -75,7 +75,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     pluginWorkspaceAccess.setGlobalObjectProperty("can.edit.read.only.files", Boolean.FALSE);
     this.pluginWorkspaceAccess = pluginWorkspaceAccess;
 
-    final Action checkTextAction = new AbstractAction() {
+    final Action checkTextAction = new AbstractAction("LanguageTool Check") {
       @Override
       public void actionPerformed(ActionEvent actionevent) {
         WSEditor editorAccess = pluginWorkspaceAccess.getCurrentEditorAccess(StandalonePluginWorkspace.MAIN_EDITING_AREA);
@@ -139,7 +139,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     pluginWorkspaceAccess.addMenuBarCustomizer(new MenuBarCustomizer() {
       @Override
       public void customizeMainMenu(JMenuBar mainMenu) {
-        JMenuItem menuItem = new JMenuItem("LanguageTool Check");
+        JMenuItem menuItem = new JMenuItem();
         menuItem.setAction(checkTextAction);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
         mainMenu.getMenu(6).add(menuItem);  // assume 6 is the "Tools" menu
@@ -157,7 +157,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
             Collections.addAll(components, initialComponents);
           }
           ToolbarButton button = new ToolbarButton(checkTextAction, true);
-          button.setText("LanguageTool Check");
           components.add(button);
           toolbarInfo.setComponents(components.toArray(new JComponent[components.size()]));
         }
