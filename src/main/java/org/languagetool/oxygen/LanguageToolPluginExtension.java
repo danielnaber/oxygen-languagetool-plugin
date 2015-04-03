@@ -260,8 +260,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       try {
         highlightData.clear(editorAccess);
         highlighter.removeAllHighlights();
-        ro.sync.exml.view.graphics.Color painterColor = new ColorHighlightPainter().getColor();
-        Color markerColor = new Color(painterColor.getRed(), painterColor.getGreen(), painterColor.getBlue());
+        Color markerColor = new Color(255, 199, 66);
 
         TextModeTextCollector textCollector = new TextModeTextCollector();
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
