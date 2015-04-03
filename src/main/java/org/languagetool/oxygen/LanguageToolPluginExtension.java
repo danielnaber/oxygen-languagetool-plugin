@@ -34,6 +34,7 @@ import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
 import ro.sync.exml.workspace.api.editor.page.text.TextPopupMenuCustomizer;
 import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
+import ro.sync.exml.workspace.api.standalone.MenuBarCustomizer;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
@@ -48,8 +49,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -135,6 +135,16 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
       }
     };
+
+    pluginWorkspaceAccess.addMenuBarCustomizer(new MenuBarCustomizer() {
+      @Override
+      public void customizeMainMenu(JMenuBar mainMenu) {
+        JMenuItem menuItem = new JMenuItem("LanguageTool Check");
+        menuItem.setAction(checkTextAction);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+        mainMenu.getMenu(6).add(menuItem);  // assume 6 is the "Tools" menu
+      }
+    });
 
     // we need this as editorAccess is null in applicationStarted() at application start:
     pluginWorkspaceAccess.addToolbarComponentsCustomizer(new ToolbarComponentsCustomizer() {
