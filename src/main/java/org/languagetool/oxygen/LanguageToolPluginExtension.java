@@ -73,14 +73,15 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
   private TextPopupMenuCustomizer textPopupMenuCustomizer;
   private Timer timer;
-  private ColorConfiguration colorConfiguration;
+  private Map<String, Color> errorTypeToColor = new HashMap<String, Color>();
 
   @Override
   public void applicationStarted(final StandalonePluginWorkspace pluginWorkspaceAccess) {
     pluginWorkspaceAccess.setGlobalObjectProperty("can.edit.read.only.files", Boolean.FALSE);
     this.pluginWorkspaceAccess = pluginWorkspaceAccess;
     try {
-      colorConfiguration = new ColorConfiguration();
+      ColorConfiguration colorConfiguration = new ColorConfiguration();
+      errorTypeToColor = colorConfiguration.getTypeToColorMap();
     } catch (IOException e) {
       // The configuration file may not exist, e.g. because a remote server is used
       // for checking and LT has never been installed on this machine, so don't crash.
@@ -269,7 +270,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         for (RuleMatch ruleMatch : ruleMatches) {
-          Color colorOrNull = colorConfiguration.getTypeToColorMap().get(ruleMatch.getIssueType());
+          Color colorOrNull = errorTypeToColor.get(ruleMatch.getIssueType());
           Color markerColor = colorOrNull != null ? colorOrNull : DEFAULT_COLOR;
           int start = ruleMatch.getOxygenOffsetStart() - 1;
           int end = ruleMatch.getOxygenOffsetEnd();
