@@ -12,6 +12,9 @@ Major limitations, as this is just a prototype:
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
 * uses the default language configured for the spell checker (ignores `lang` attributes)
+* In text mode, when correcting an error by accepting a suggestion from the
+  context menu, the subsequent errors might lose their error information
+  from the context menu. A new check fixes this.
 * in text mode, XML comments are ignored
 * in text mode, it will not properly work on XML that is not well-formed
 * switching between tabs can sometimes lead to the same error showing up more than
