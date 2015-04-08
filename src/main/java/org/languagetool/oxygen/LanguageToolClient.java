@@ -63,6 +63,8 @@ class LanguageToolClient {
       InputStream inputStream = connection.getInputStream();
       String xml = streamToString(inputStream, "utf-8");
       return parseXml(xml, text);
+    } catch (MappingException e) {
+      throw e;
     } catch (Exception e) {
       throw new RuntimeException("Could not check text using LanguageTool server at URL '" + url + "'", e);
     } finally {
@@ -145,7 +147,7 @@ class LanguageToolClient {
       ruleMatch.setOxygenOffsetStart(text.getOxygenPositionFor(offset) + 1);
       ruleMatch.setOxygenOffsetEnd(text.getOxygenPositionFor(offset + length - 1) + 1);
     } catch (Exception e) {
-      throw new RuntimeException("Could not map start or end offset of rule match '" +
+      throw new MappingException("Could not map start or end offset of rule match '" +
               ruleMatch.getMessage() + "': " + offset + "-" + (offset + length - 1), e);
     }
     return ruleMatch;

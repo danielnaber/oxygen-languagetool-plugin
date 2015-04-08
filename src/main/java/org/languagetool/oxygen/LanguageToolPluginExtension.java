@@ -279,6 +279,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       } catch (BadLocationException e) {
         e.printStackTrace();
       }
+    } catch (MappingException e) {
+      showErrorDialog("Your text could not be checked with LanguageTool.\nPlease make sure your XML is well-formed when you check it.", e);
     } catch (Exception e) {
       showErrorDialog(e);
     }
@@ -292,10 +294,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
-  private void showErrorDialog(Exception e) {
+  private void showErrorDialog(String message, Exception e) {
     e.printStackTrace();
+    JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+  }
+
+  private void showErrorDialog(Exception e) {
     String msg = e.getMessage() + "\n(See console output for full stacktrace.)";
-    JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
+    showErrorDialog(msg, e);
   }
 
   private void addMenuItems(JPopupMenu popUp, RuleMatch match, Action action) {
