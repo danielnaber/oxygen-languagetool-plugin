@@ -43,6 +43,11 @@ class TextCollector {
         TextRange oxygenRange = new TextRange(content.getTextStartOffset()-1, content.getTextEndOffset()-1);
         mapping.addMapping(textCheckRange, oxygenRange);
         sb.append(text);
+        // We cannot easily tell where whitespace belongs as this requires some kind of "rendering"
+        // of the text, so we guess that this is a place where adding whitespace makes sense:
+        //sb.append(" ");
+        // However, this would introduce a whitespace here, producing "Nautilus , leaving":
+        // "This marvelous <i>Nautilus</i>, leaving."
       }
     }
     mapping.setText(sb.toString());
