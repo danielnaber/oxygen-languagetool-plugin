@@ -152,4 +152,28 @@ public class TextModeTextCollectorTest {
     textCollector.collectTexts(" -->");
   }
 
+  @Test
+  public void testClosingBracket1() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts("<p>This -> is actually valid XML.</p>");
+    assertThat(mapping.getText(), is("This -> is actually valid XML."));
+    assertThat(mapping.getMapping().size(), is(1));
+  }
+
+  @Test
+  public void testClosingBracket2() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts("<p>And <i>this -> is</i> also okay.</p>");
+    assertThat(mapping.getText(), is("And this -> is also okay."));
+    assertThat(mapping.getMapping().size(), is(3));
+  }
+
+  @Test
+  public void testInvalidXml() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts("<p>This <- is not valid.</p>");
+    assertThat(mapping.getText(), is("This "));  // invalid XML, it's expected that we cannot deal with it
+    assertThat(mapping.getMapping().size(), is(1));
+  }
+
 }

@@ -7,8 +7,10 @@ Major limitations, as this is just a prototype:
 
 * requires a [LanguageTool](https://languagetool.org) server running on localhost,
   port 8081 (HTTP, not HTTPS)
-* simply checks anything not inside XML tags (has no advanced logic how to
-  transform XML to plain text, as needed by LanguageTool)
+* Simply checks anything not inside XML tags (has no advanced logic how to
+  transform XML to plain text, as needed by LanguageTool). As the logic for
+  text extraction is different in Author mode and Text mode, this can sometimes
+  lead to different error messages in both modes.
 * uses the default language configured for the spell checker (ignores `lang` attributes)
 * in text mode, XML comments are ignored
 * in text mode, it will not properly work on XML that is not well-formed

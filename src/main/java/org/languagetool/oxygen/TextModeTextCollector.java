@@ -48,7 +48,7 @@ class TextModeTextCollector {
           //System.out.println("MAP: " + plainTextRange + " -> " + xmlRange);
           mapping.addMapping(plainTextRange, xmlRange);
         }
-      } else if (c == '>') {
+      } else if (c == '>' && inTag > 0) {
         inTag--;
         xmlStart = i + 1;
         plainTextStart = sb.length();
