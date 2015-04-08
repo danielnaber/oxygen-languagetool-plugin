@@ -21,6 +21,7 @@ package org.languagetool.oxygen;
 import ro.sync.ecss.extensions.api.AuthorDocumentController;
 import ro.sync.ecss.extensions.api.content.TextContentIterator;
 import ro.sync.ecss.extensions.api.content.TextContext;
+import ro.sync.ecss.extensions.api.node.AuthorNode;
 
 import javax.swing.text.BadLocationException;
 
@@ -36,10 +37,13 @@ class TextCollector {
     while (textContentIterator.hasNext()) {
       TextContext content = textContentIterator.next();
       CharSequence text = content.getText();
-      TextRange textCheckRange = new TextRange(sb.length(), sb.length() + text.length());
-      TextRange oxygenRange = new TextRange(content.getTextStartOffset()-1, content.getTextEndOffset()-1);
-      mapping.addMapping(textCheckRange, oxygenRange);
-      sb.append(text);
+      AuthorNode nodeAtOffset = docController.getNodeAtOffset(content.getTextEndOffset());
+      if (nodeAtOffset.getType() != AuthorNode.NODE_TYPE_PI) {
+        TextRange textCheckRange = new TextRange(sb.length(), sb.length() + text.length());
+        TextRange oxygenRange = new TextRange(content.getTextStartOffset()-1, content.getTextEndOffset()-1);
+        mapping.addMapping(textCheckRange, oxygenRange);
+        sb.append(text);
+      }
     }
     mapping.setText(sb.toString());
     return mapping;
