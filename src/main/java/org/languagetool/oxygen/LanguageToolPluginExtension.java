@@ -96,17 +96,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         Object textComponent = currentPage.getTextComponent();
         if (textComponent instanceof JTextArea) {
           JTextArea textArea = (JTextArea) textComponent;
-          // TODO: activate if it's fast enough:
-          /*textArea.addKeyListener(new KeyListener() {
-              @Override
-              public void keyTyped(KeyEvent e) {}
-              @Override
-              public void keyPressed(KeyEvent e) {}
-              @Override
-              public void keyReleased(KeyEvent e) {
-                // see addAuthorListener() below
-              }
-          });*/
+          // activate for on-the-fly checking:
+          /*textArea.addKeyListener(new KeyListener() { ... });*/
           checkText(textArea, editorAccess, currentPage, pluginWorkspaceAccess);
         }
       }
@@ -118,8 +109,11 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         }
         authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
         authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
-        final AuthorDocumentController controller = authorPageAccess.getDocumentController();
         final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
+        /* commented out on-the-fly checking so Author mode works the same as Text mode -
+           on-the-fly checking in text mode is a bit tricky, as it will fail when the
+           XML isn't invalid (which is often the case when typing XML manually):
+        final AuthorDocumentController controller = authorPageAccess.getDocumentController();
         controller.addAuthorListener(new AuthorListenerAdapter() {
           @Override
           public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
@@ -134,7 +128,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
             checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
           }
-        });
+        });*/
         checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
       }
     };
