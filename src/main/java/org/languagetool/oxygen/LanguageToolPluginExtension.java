@@ -25,7 +25,6 @@ import ro.sync.ecss.extensions.api.*;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
-import ro.sync.ecss.extensions.api.node.AuthorDocument;
 import ro.sync.ecss.extensions.api.structure.AuthorPopupMenuCustomizer;
 import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
@@ -54,6 +53,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -64,7 +64,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private static final int MIN_WAIT_MILLIS = 500;
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
-  
+  private static final Color DEFAULT_COLOR = new Color(255, 199, 66);
+
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
   private final HighlightData highlightData = new HighlightData();
 
@@ -72,11 +73,20 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
   private TextPopupMenuCustomizer textPopupMenuCustomizer;
   private Timer timer;
+  private ColorConfiguration colorConfiguration;
 
   @Override
   public void applicationStarted(final StandalonePluginWorkspace pluginWorkspaceAccess) {
     pluginWorkspaceAccess.setGlobalObjectProperty("can.edit.read.only.files", Boolean.FALSE);
     this.pluginWorkspaceAccess = pluginWorkspaceAccess;
+    try {
+      colorConfiguration = new ColorConfiguration();
+    } catch (IOException e) {
+      // The configuration file may not exist, e.g. because a remote server is used
+      // for checking and LT has never been installed on this machine, so don't crash.
+      System.err.println("Could not load color configuration. Stacktrace follows:");
+      e.printStackTrace();
+    }
 
     final Action checkTextAction = new AbstractAction("LanguageTool Check") {
       @Override
@@ -254,12 +264,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       try {
         highlightData.clear(editorAccess);
         highlighter.removeAllHighlights();
-        Color markerColor = new Color(255, 199, 66);
 
         TextModeTextCollector textCollector = new TextModeTextCollector();
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         for (RuleMatch ruleMatch : ruleMatches) {
+          Color colorOrNull = colorConfiguration.getTypeToColorMap().get(ruleMatch.getIssueType());
+          Color markerColor = colorOrNull != null ? colorOrNull : DEFAULT_COLOR;
           int start = ruleMatch.getOxygenOffsetStart() - 1;
           int end = ruleMatch.getOxygenOffsetEnd();
           Object highlight = highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));

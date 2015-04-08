@@ -19,6 +19,7 @@
 package org.languagetool.oxygen;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A potential problem found by LanguageTool. 
@@ -29,15 +30,17 @@ class RuleMatch {
   private final int offsetStart;
   private final int offsetEnd;
   private final List<String> replacements;
+  private final String issueType;
 
   private int oxygenOffsetStart;
   private int oxygenOffsetEnd;
 
-  RuleMatch(String message, int offsetStart, int offsetEnd, List<String> replacements) {
-    this.message = message;
+  RuleMatch(String message, int offsetStart, int offsetEnd, List<String> replacements, String issueType) {
+    this.message = Objects.requireNonNull(message);
     this.offsetStart = offsetStart;
     this.offsetEnd = offsetEnd;
     this.replacements = replacements;
+    this.issueType = issueType;
   }
 
   String getMessage() {
@@ -70,6 +73,10 @@ class RuleMatch {
 
   void setOxygenOffsetEnd(int origOffsetEnd) {
     this.oxygenOffsetEnd = origOffsetEnd;
+  }
+
+  String getIssueType() {
+    return issueType;
   }
 
   @Override

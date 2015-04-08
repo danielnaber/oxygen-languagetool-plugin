@@ -140,9 +140,10 @@ class LanguageToolClient {
             Arrays.asList(replacementAttribute.getNodeValue().split("#")) : Collections.<String>emptyList();
     String offsetStr = attributes.getNamedItem("offset").getNodeValue();
     String lengthStr = attributes.getNamedItem("errorlength").getNodeValue();
+    Node issueType = attributes.getNamedItem("locqualityissuetype");
     int offset = Integer.parseInt(offsetStr);
     int length = Integer.parseInt(lengthStr);
-    RuleMatch ruleMatch = new RuleMatch(message, offset, offset + length, replacements);
+    RuleMatch ruleMatch = new RuleMatch(message, offset, offset + length, replacements, issueType != null ? issueType.getNodeValue() : null);
     try {
       ruleMatch.setOxygenOffsetStart(text.getOxygenPositionFor(offset) + 1);
       ruleMatch.setOxygenOffsetEnd(text.getOxygenPositionFor(offset + length - 1) + 1);
