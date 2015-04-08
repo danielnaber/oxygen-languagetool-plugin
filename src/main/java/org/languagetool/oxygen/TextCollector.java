@@ -18,48 +18,31 @@
  */
 package org.languagetool.oxygen;
 
-import ro.sync.ecss.extensions.api.node.AuthorElement;
-import ro.sync.ecss.extensions.api.node.AuthorNode;
+import ro.sync.ecss.extensions.api.AuthorDocumentController;
+import ro.sync.ecss.extensions.api.content.TextContentIterator;
+import ro.sync.ecss.extensions.api.content.TextContext;
 
 import javax.swing.text.BadLocationException;
-import java.util.List;
 
 /**
  * Collects the text part of an Author view in Oxygen.
  */
 class TextCollector {
 
-  TextWithMapping collectTexts(List<AuthorNode> contentNodes) throws BadLocationException {
+  TextWithMapping collectTexts(AuthorDocumentController docController) throws BadLocationException {
     TextWithMapping mapping = new TextWithMapping();
     StringBuilder sb = new StringBuilder();
-    doCollectTexts(contentNodes, mapping, sb, 0);
+    TextContentIterator textContentIterator = docController.getTextContentIterator(0, docController.getAuthorDocumentNode().getEndOffset());
+    while (textContentIterator.hasNext()) {
+      TextContext content = textContentIterator.next();
+      CharSequence text = content.getText();
+      TextRange textCheckRange = new TextRange(sb.length(), sb.length() + text.length());
+      TextRange oxygenRange = new TextRange(content.getTextStartOffset()-1, content.getTextEndOffset()-1);
+      mapping.addMapping(textCheckRange, oxygenRange);
+      sb.append(text);
+    }
     mapping.setText(sb.toString());
     return mapping;
   }
-  
-  private int doCollectTexts(List<AuthorNode> contentNodes, TextWithMapping mapping, StringBuilder text, int checkTextPos) throws BadLocationException {
-    for (AuthorNode contentNode : contentNodes) {
-      boolean isTextLevel;
-      if (contentNode.getType() == AuthorNode.NODE_TYPE_ELEMENT) {
-        AuthorElement authorElement = (AuthorElement) contentNode;
-        List<AuthorNode> subContentNodes = authorElement.getContentNodes();
-        isTextLevel = subContentNodes.size() == 0;
-        checkTextPos = doCollectTexts(subContentNodes, mapping, text, checkTextPos);
-      } else {
-        isTextLevel = false;
-      }
-      // TODO: this is wrong: it will skip over eg. "<s>this is <b>text</b></s>" -
-      //   see LanguageToolPluginExtension.checkText() instead
-      if (isTextLevel) {
-        TextRange textCheckRange = new TextRange(checkTextPos, checkTextPos + contentNode.getTextContent().length() + 1);
-        TextRange oxygenRange = new TextRange(contentNode.getStartOffset(), contentNode.getEndOffset());
-        mapping.addMapping(textCheckRange, oxygenRange);
-        text.append(contentNode.getTextContent()).append("\n");
-        checkTextPos += contentNode.getTextContent().length() + 1;
-      }
-    }
-    return checkTextPos;
-  }
-
 
 }

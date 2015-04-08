@@ -26,7 +26,6 @@ import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
 import ro.sync.ecss.extensions.api.node.AuthorDocument;
-import ro.sync.ecss.extensions.api.node.AuthorNode;
 import ro.sync.ecss.extensions.api.structure.AuthorPopupMenuCustomizer;
 import ro.sync.exml.editor.EditorPageConstants;
 import ro.sync.exml.plugin.workspace.WorkspaceAccessPluginExtension;
@@ -48,11 +47,15 @@ import javax.swing.text.Highlighter;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.awt.Color;
-import java.awt.event.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.List;
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
@@ -222,20 +225,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     long startTime = System.currentTimeMillis();
     try {
       AuthorDocumentController docController = authorEditorPage.getDocumentController();
-      AuthorDocument authorDocumentNode = docController.getAuthorDocumentNode();
-      /* TODO: use this instead of TextCollector:
-      //Why does this include some PI (processing instruction)? for input like:
-      //  <?xml version="1.0" encoding="UTF-8"?>
-      //  <?xml-stylesheet type="text/css" href="/lt/rules.css" title="..."?>
-      // =>
-      //  xml-stylesheet type="text/css" href="/lt/rules.css" title="..."
-      TextContentIterator textContentIterator = docController.getTextContentIterator(0, docController.getAuthorDocumentNode().getEndOffset());
-      while (textContentIterator.hasNext()) {
-        System.out.println("#"+textContentIterator.next().getText() + "#");
-      }*/
-      List<AuthorNode> contentNodes = authorDocumentNode.getContentNodes();
       TextCollector textCollector = new TextCollector();
-      TextWithMapping textWithMapping = textCollector.collectTexts(contentNodes);
+      TextWithMapping textWithMapping = textCollector.collectTexts(docController);
       try {
         String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
