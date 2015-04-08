@@ -5,13 +5,11 @@ oxygen-languagetool-plugin
 
 Major limitations, as this is just a prototype:
 
-* requires a [LanguageTool](http://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
+* requires a [LanguageTool](https://languagetool.org) server running on localhost, port 8081 (HTTP, not HTTPS)
 * in text mode, XML comments are ignored
 * in text mode, it will not properly work on invalid XML
-* requires clicking the "LanguageTool Check" button once
 * uses the default language configured for the spell checker (ignores `lang` attributes)
 * simply checks anything not inside XML tags (has no advanced logic how to transform XML to plain text, as needed by LanguageTool)
-* ~~cannot highlight errors that affect only one character due to [a bug](http://www.oxygenxml.com/forum/topic10702.html) in Oxygen~~ fixed with Oxygen build 2014060420
 * tested with Oxygen 16.1 only
 
 Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free license.
@@ -25,8 +23,8 @@ latest release. Unzip it in the `plugins` directory of your Oxygen installation 
 
 ### Usage
 
-Load an XML file, switch to author mode, and click the "LanguageTool Check" button (you only need to do this
-once after loading a file). Errors that can be detected by LanguageTool should become underlined.
+Load an XML file, switch to author mode, and click the "LanguageTool Check" button or press Ctrl+Shift+Return.
+Errors that can be detected by LanguageTool will become underlined.
 
 ### Building
 
@@ -38,6 +36,12 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 
 ### Changelog
 
+* 2015-04-08:
+    * checking text should now work properly for nested XML tags
+    * colors for Text Mode error markers are loaded from `~/.languagetool.cfg`,
+      if set there with e.g. `errorColors=style:#ffb8b8, typographical:#b8b8ff`
+* 2015-04-03:
+    * added Ctrl+Shift+Return as a shortcut to start the check
 * 2015-03-06:
     * fixes for texts with special characters
 * 2014-08-12:
