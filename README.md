@@ -11,6 +11,8 @@ Major limitations, as this is just a prototype:
   transform XML to plain text, as needed by LanguageTool). As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
+* The LanguageTool whitespace checks (e.g. double whitespace) have been disabled,
+  as these are not useful without more knowledge about the XML.
 * uses the default language configured for the spell checker (ignores `lang` attributes)
 * In text mode, when correcting an error by accepting a suggestion from the
   context menu, the subsequent errors might lose their error information
