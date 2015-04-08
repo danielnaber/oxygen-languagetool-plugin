@@ -43,7 +43,7 @@ public class LanguageToolClientTest {
     assertThat(ruleMatches.get(0).getOffsetStart(), is(8));
     assertThat(ruleMatches.get(0).getOffsetEnd(), is(10));
 
-    assertThat(ruleMatches.get(0).getOxygenOffsetStart(), is(18));
+    assertThat(ruleMatches.get(0).getOxygenOffsetStart(), is(19));
     assertThat(ruleMatches.get(0).getOxygenOffsetEnd(), is(20));
   }
 }
