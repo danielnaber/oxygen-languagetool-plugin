@@ -38,7 +38,7 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 
 * 2015-04-08:
     * checking text should now work properly for nested XML tags
-    * colors for Text Mode error markers are loaded from `~/.languagetool.cfg`,
+    * colors error markers are loaded from `~/.languagetool.cfg`,
       if set there with e.g. `errorColors=style:#ffb8b8, typographical:#b8b8ff`
 * 2015-04-03:
     * added Ctrl+Shift+Return as a shortcut to start the check

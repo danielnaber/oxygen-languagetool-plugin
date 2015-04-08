@@ -46,7 +46,7 @@ import javax.swing.text.Highlighter;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.awt.*;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -237,10 +237,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
-        ColorHighlightPainter painter = new ColorHighlightPainter();
         for (RuleMatch match : ruleMatches) {
           int start = match.getOxygenOffsetStart();
           int end = match.getOxygenOffsetEnd();
+          Color markerColor = getMarkerColor(match);
+          ro.sync.exml.view.graphics.Color col =
+                  new ro.sync.exml.view.graphics.Color(markerColor.getRed(), markerColor.getGreen(), markerColor.getBlue(), 255);
+          ColorHighlightPainter painter = new ColorHighlightPainter();
+          painter.setBgColor(col);
           //System.out.println("Match: " + match.getOffsetStart() + "-" + match.getOffsetEnd() +
           //        " (Oxygen: " + start + "-"+ end + "): " + match.getMessage());
           highlighter.addHighlight(start, end, painter, match);
@@ -270,8 +274,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         for (RuleMatch ruleMatch : ruleMatches) {
-          Color colorOrNull = errorTypeToColor.get(ruleMatch.getIssueType());
-          Color markerColor = colorOrNull != null ? colorOrNull : DEFAULT_COLOR;
+          Color markerColor = getMarkerColor(ruleMatch);
           int start = ruleMatch.getOxygenOffsetStart() - 1;
           int end = ruleMatch.getOxygenOffsetEnd();
           Object highlight = highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));
@@ -296,6 +299,11 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     } catch (Exception e) {
       showErrorDialog(e);
     }
+  }
+
+  private Color getMarkerColor(RuleMatch ruleMatch) {
+    Color colorOrNull = errorTypeToColor.get(ruleMatch.getIssueType());
+    return colorOrNull != null ? colorOrNull : DEFAULT_COLOR;
   }
 
   private void stopTimer() {
