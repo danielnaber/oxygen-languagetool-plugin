@@ -260,14 +260,14 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           Color markerColor = getMarkerColor(ruleMatch);
           int start = ruleMatch.getOxygenOffsetStart() - 1;
           int end = ruleMatch.getOxygenOffsetEnd();
-          Object highlight = highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));
-          perEditorHighlightData.get(editorAccess).addInfo(new HighlightInfo(start, end, ruleMatch, highlight));
+          highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));
+          perEditorHighlightData.get(editorAccess).addInfo(new HighlightInfo(start, end, ruleMatch));
         }
 
         if (textPopupMenuCustomizer != null) {
           currentPage.removePopUpMenuCustomizer(textPopupMenuCustomizer);
         }
-        textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText(editorAccess, pluginWorkspaceAccess);
+        textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText(editorAccess);
         currentPage.addPopUpMenuCustomizer(textPopupMenuCustomizer);
 
         long endTime = System.currentTimeMillis();
@@ -340,11 +340,9 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   class ApplyReplacementMenuCustomizerForText extends TextPopupMenuCustomizer {
     private final WSEditor editorAccess;
-    private final StandalonePluginWorkspace pluginWorkspaceAccess;
 
-    ApplyReplacementMenuCustomizerForText(WSEditor editorAccess, StandalonePluginWorkspace pluginWorkspaceAccess) {
+    ApplyReplacementMenuCustomizerForText(WSEditor editorAccess) {
       this.editorAccess = editorAccess;
-      this.pluginWorkspaceAccess = pluginWorkspaceAccess;
     }
 
     @Override
@@ -418,22 +416,20 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     private final int startOffset;
     private final int endOffset;
     private final RuleMatch ruleMatch;
-    private final Object highlight;
 
-    HighlightInfo(int startOffset, int endOffset, RuleMatch ruleMatch, Object highlight) {
+    HighlightInfo(int startOffset, int endOffset, RuleMatch ruleMatch) {
       this.startOffset = startOffset;
       this.endOffset = endOffset;
       this.ruleMatch = Objects.requireNonNull(ruleMatch);
-      this.highlight = Objects.requireNonNull(highlight);
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      HighlightInfo that = (HighlightInfo) o;
-      if (endOffset != that.endOffset) return false;
-      if (startOffset != that.startOffset) return false;
+      HighlightInfo other = (HighlightInfo) o;
+      if (endOffset != other.endOffset) return false;
+      if (startOffset != other.startOffset) return false;
       return true;
     }
 
