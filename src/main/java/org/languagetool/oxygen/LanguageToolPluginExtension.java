@@ -469,8 +469,10 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         if (!deleted) {
           System.err.println("Could not delete text for match " + match);
         } else {
+          AuthorHighlighter highlighter = authorAccess.getEditorAccess().getHighlighter();
+          highlighter.removeAllHighlights();
           controller.insertText(match.getOxygenOffsetStart(), event.getActionCommand());
-          authorAccess.getEditorAccess().getHighlighter().removeHighlight(highlight);
+          checkTextInBackground(highlighter, authorPageAccess);
         }
       } finally {
         controller.endCompoundEdit();
