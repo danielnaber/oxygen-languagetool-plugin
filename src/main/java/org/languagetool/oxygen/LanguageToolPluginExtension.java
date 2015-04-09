@@ -39,7 +39,6 @@ import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
 import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -48,7 +47,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -61,7 +59,6 @@ import java.util.List;
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
   private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
-  private static final int MIN_WAIT_MILLIS = 500;
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   private static final Color DEFAULT_COLOR = new Color(255, 199, 66);
@@ -72,7 +69,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private StandalonePluginWorkspace pluginWorkspaceAccess;
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
   private TextPopupMenuCustomizer textPopupMenuCustomizer;
-  private Timer timer;
   private Map<String, Color> errorTypeToColor = new HashMap<String, Color>();
 
   @Override
@@ -121,25 +117,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
         authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
         final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
-        /* commented out on-the-fly checking so Author mode works the same as Text mode -
-           on-the-fly checking in text mode is a bit tricky, as it will fail when the
-           XML isn't invalid (which is often the case when typing XML manually):
-        final AuthorDocumentController controller = authorPageAccess.getDocumentController();
-        controller.addAuthorListener(new AuthorListenerAdapter() {
-          @Override
-          public void documentChanged(AuthorDocument authorDocument, AuthorDocument authorDocument2) {
-            // "A new document has been set into the author page."
-            checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
-          }
-          @Override
-          public void contentDeleted(DocumentContentDeletedEvent documentContentDeletedEvent) {
-            checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
-          }
-          @Override
-          public void contentInserted(DocumentContentInsertedEvent documentContentInsertedEvent) {
-            checkTextInBackground(highlighter, authorPageAccess, pluginWorkspaceAccess);
-          }
-        });*/
         checkTextInBackground(highlighter, authorPageAccess);
       }
     };
@@ -210,19 +187,12 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
-    stopTimer();
-    timer = new Timer(MIN_WAIT_MILLIS, new ActionListener() {
+    new Thread(new Runnable() {
       @Override
-      public void actionPerformed(ActionEvent e) {
-        new Thread(new Runnable() {
-          @Override
-          public void run() {
-            checkText(highlighter, authorEditorPage, pluginWorkspaceAccess);
-          }
-        }).start();
+      public void run() {
+        checkText(highlighter, authorEditorPage, pluginWorkspaceAccess);
       }
-    });
-    timer.start();
+    }).start();
   }
   
   private synchronized void checkTextInBackground(final JTextArea textArea, final WSEditor editorAccess, final WSTextEditorPage currentPage) {
@@ -241,7 +211,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   private void checkText(AuthorHighlighter highlighter, WSAuthorEditorPage authorEditorPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
-    stopTimer();
     long startTime = System.currentTimeMillis();
     try {
       AuthorDocumentController docController = authorEditorPage.getDocumentController();
@@ -276,7 +245,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
-    stopTimer();
     long startTime = System.currentTimeMillis();
     try {
       String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
@@ -319,14 +287,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private Color getMarkerColor(RuleMatch ruleMatch) {
     Color colorOrNull = errorTypeToColor.get(ruleMatch.getIssueType());
     return colorOrNull != null ? colorOrNull : DEFAULT_COLOR;
-  }
-
-  private void stopTimer() {
-    synchronized (this) {
-      if (timer != null) {
-        timer.stop();
-      }
-    }
   }
 
   private void showErrorDialog(String message, Exception e) {
