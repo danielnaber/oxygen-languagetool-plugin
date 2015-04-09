@@ -29,7 +29,6 @@ import javax.swing.text.BadLocationException;
  * Collects the text part of an Author view in Oxygen, taking
  * into account what's an inline element and what's not.
  * See https://github.com/danielnaber/oxygen-languagetool-plugin/issues/6.
- * Needs some debugging, sometimes the position seems to be off by one.
  */
 class TextCollector2 {
 
@@ -41,17 +40,42 @@ class TextCollector2 {
         return false;
       }
     });
-    TextWithMapping mapping = new TextWithMapping() {
+    // getFilteredContent() leaves specials chars (\u0000) in its string,
+    // so we need another mapping that provides a view without those,
+    // as they would confuse LT:
+    final TextWithMapping outerMapping = getOuterMapping(filteredContent);
+    TextWithMapping innerMapping = new TextWithMapping() {
       @Override
       int getOxygenPositionFor(int offset) {
-        return filteredContent.getOriginalOffset(offset) - 1;
+        int pos = outerMapping.getOxygenPositionFor(offset);
+        return filteredContent.getOriginalOffset(pos);
       }
       @Override
       String getText() {
-        return String.valueOf(filteredContent);
+        return outerMapping.getText();
       }
     };
-    return mapping;
+    //debug:
+    //System.out.println(outerMapping.getText());
+    return innerMapping;
+  }
+
+  private TextWithMapping getOuterMapping(AuthorFilteredContent filteredContent) {
+    final TextWithMapping outerMapping = new TextWithMapping();
+    int originalCount = 0;
+    int contentCount = 0;
+    final StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < filteredContent.length(); i++) {
+      char c = filteredContent.charAt(i);
+      if (c != '\u0000') {
+        contentCount++;
+        sb.append(c);
+      }
+      outerMapping.addMapping(new TextRange(contentCount, contentCount + 1), new TextRange(originalCount, originalCount + 1));
+      originalCount++;
+    }
+    outerMapping.setText(sb.toString());
+    return outerMapping;
   }
 
 }
