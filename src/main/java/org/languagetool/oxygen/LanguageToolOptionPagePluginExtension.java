@@ -23,16 +23,15 @@ import ro.sync.exml.workspace.api.PluginWorkspace;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExtension {
 
-  @Override
-  public void apply(PluginWorkspace pluginWorkspace) {
-  }
+  static final String SERVER_URL_KEY = "serverUrl";
+  static final String DEFAULT_URL = "http://localhost:8081";
 
-  @Override
-  public void restoreDefaults() {
-  }
+  private final JTextField serverUrlField = new JTextField();
 
   @Override
   public String getTitle() {
@@ -40,9 +39,49 @@ public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExten
   }
 
   @Override
-  public JComponent init(PluginWorkspace pluginWorkspace) {
+  public JComponent init(final PluginWorkspace pluginWorkspace) {
     JPanel panel = new JPanel(new GridBagLayout());
-    // nothing so far...
+
+    GridBagConstraints cons = new GridBagConstraints();
+    cons.insets = new Insets(0, 4, 0, 0);
+    cons.gridx = 0;
+    cons.gridy = 0;
+    cons.anchor = GridBagConstraints.NORTH;
+    cons.fill = GridBagConstraints.HORIZONTAL;
+
+    panel.add(new JLabel("LanguageTool server URL:"), cons);
+
+    cons.gridx = 1;
+    cons.fill = GridBagConstraints.HORIZONTAL;
+    cons.weightx = 1.0;
+    serverUrlField.setText(getServerUrl(pluginWorkspace));
+    serverUrlField.addPropertyChangeListener(new PropertyChangeListener() {
+      @Override
+      public void propertyChange(PropertyChangeEvent evt) {
+        setServerUrl(pluginWorkspace);
+      }
+    });
+    panel.add(serverUrlField, cons);
+
     return panel;
   }
+
+  @Override
+  public void apply(PluginWorkspace pluginWorkspace) {
+    setServerUrl(pluginWorkspace);
+  }
+
+  @Override
+  public void restoreDefaults() {
+    serverUrlField.setText(DEFAULT_URL);
+  }
+
+  private String getServerUrl(PluginWorkspace pluginWorkspace) {
+    return pluginWorkspace.getOptionsStorage().getOption(SERVER_URL_KEY, DEFAULT_URL);
+  }
+
+  private void setServerUrl(PluginWorkspace pluginWorkspace) {
+    pluginWorkspace.getOptionsStorage().setOption(SERVER_URL_KEY, serverUrlField.getText());
+  }
+
 }

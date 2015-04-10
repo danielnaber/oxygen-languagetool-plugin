@@ -65,7 +65,11 @@ class LanguageToolClient {
     } catch (MappingException e) {
       throw e;
     } catch (Exception e) {
-      throw new RuntimeException("Could not check text using LanguageTool server at URL '" + url + "'", e);
+      throw new RuntimeException(
+              "Could not check text using LanguageTool server at URL '" + url + "':\n" +
+              e.getMessage() + "\n" +
+              "Please make sure the LanguageTool server is running at this URL or\n" +
+              "change the location at Options -> Preferences... -> Plugins.", e);
     } finally {
       if (connection != null) {
         connection.disconnect();

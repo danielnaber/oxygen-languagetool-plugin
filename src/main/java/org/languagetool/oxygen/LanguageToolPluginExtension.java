@@ -33,10 +33,7 @@ import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
 import ro.sync.exml.workspace.api.editor.page.text.TextPopupMenuCustomizer;
 import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
-import ro.sync.exml.workspace.api.standalone.MenuBarCustomizer;
-import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
-import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
-import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
+import ro.sync.exml.workspace.api.standalone.*;
 import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
@@ -56,15 +53,16 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
+import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.DEFAULT_URL;
+import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.SERVER_URL_KEY;
+
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
-  private static final String LANGUAGETOOL_URL = "http://localhost:8081/";
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   private static final Color DEFAULT_COLOR = new Color(255, 199, 66);
 
-  private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
   private final PerEditorHighlightData perEditorHighlightData = new PerEditorHighlightData();
   private final TextPopupMenuCustomizer textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText();
   private final AuthorPopupMenuCustomizer authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
@@ -216,6 +214,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       try {
         String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
+        LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
         for (RuleMatch match : ruleMatches) {
@@ -252,6 +251,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
         TextModeTextCollector textCollector = new TextModeTextCollector();
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
+        LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         for (RuleMatch ruleMatch : ruleMatches) {
           Color markerColor = getMarkerColor(ruleMatch);
@@ -274,6 +274,10 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     } catch (Exception e) {
       showErrorDialog(e);
     }
+  }
+
+  private LanguageToolClient getLanguageToolClient(StandalonePluginWorkspace pluginWorkspaceAccess) {
+    return new LanguageToolClient(pluginWorkspaceAccess.getOptionsStorage().getOption(SERVER_URL_KEY, DEFAULT_URL));
   }
 
   private Color getMarkerColor(RuleMatch ruleMatch) {

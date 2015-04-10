@@ -5,8 +5,8 @@ oxygen-languagetool-plugin
 
 Known limitations:
 
-* Requires a [LanguageTool](https://languagetool.org) server (2.9 or later)
-  running on localhost, port 8081 (HTTP, not HTTPS). Setting this up
+* Requires a [LanguageTool](https://languagetool.org) server (2.9 or later).
+  By default, it needs to be running at `http://localhost:8081`. Setting this up
   is very easy, see the "Download and Install" section below.
 * Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
@@ -49,6 +49,7 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 ### Changelog
 
 * version 2015-xx-yy:
+    * LanguageTool server can be configured at `Options -> Preferences... -> Plugins`
     * no more on-the-fly checking while typing
     * added `Ctrl + Shift + Return` as a shortcut to start the check
     * checking text now works properly for nested XML tags in author more
