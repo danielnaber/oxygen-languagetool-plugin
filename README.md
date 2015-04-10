@@ -15,8 +15,6 @@ Known limitations:
     * XML comments are not checked
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded
-* Switching between tabs can sometimes lead to the same error showing up more than
-  once in the context menu.
 * Tested with Oxygen 16.1 only.
 
 Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free license.

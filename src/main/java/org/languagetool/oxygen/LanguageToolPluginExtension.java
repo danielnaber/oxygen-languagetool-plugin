@@ -66,9 +66,9 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
   private final PerEditorHighlightData perEditorHighlightData = new PerEditorHighlightData();
   private final TextPopupMenuCustomizer textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText();
+  private final AuthorPopupMenuCustomizer authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
-  private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
   private Map<String, Color> errorTypeToColor = new HashMap<String, Color>();
 
   @Override
@@ -111,10 +111,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       
       private void setupHighlightingForAuthorMode(WSEditor editorAccess) {
         final WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
-        if (authorPopupMenuCustomizer != null) {
-          authorPageAccess.removePopUpMenuCustomizer(authorPopupMenuCustomizer);
-        }
-        authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
         authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
         final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
         checkTextInBackground(highlighter, authorPageAccess);
