@@ -214,9 +214,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     long startTime = System.currentTimeMillis();
     try {
       AuthorDocumentController docController = authorEditorPage.getDocumentController();
-      TextCollector textCollector = new TextCollector();
-      // Alternative solution:
-      //TextCollector2 textCollector = new TextCollector2();
+      AuthorModeTextCollector textCollector = new AuthorModeTextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(docController);
       try {
         String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);

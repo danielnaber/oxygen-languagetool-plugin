@@ -28,9 +28,8 @@ import javax.swing.text.BadLocationException;
 /**
  * Collects the text part of an Author view in Oxygen, taking
  * into account what's an inline element and what's not.
- * See https://github.com/danielnaber/oxygen-languagetool-plugin/issues/6.
  */
-class TextCollector2 {
+class AuthorModeTextCollector {
 
   TextWithMapping collectTexts(AuthorDocumentController docController) throws BadLocationException {
     int endOffset = docController.getAuthorDocumentNode().getEndOffset();
