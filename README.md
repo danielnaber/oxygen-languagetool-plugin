@@ -1,19 +1,20 @@
 oxygen-languagetool-plugin
 ==========================
 
-**Prototype** of a LanguageTool plugin for the Oxygen XML editor
+**Beta version** of a LanguageTool plugin for the Oxygen XML editor.
 
-Major limitations, as this is just a prototype:
+Known limitations:
 
 * Requires a [LanguageTool](https://languagetool.org) server (2.9 or later)
   running on localhost, port 8081 (HTTP, not HTTPS).
-* Simply checks anything not inside XML tags (has no advanced logic how to
-  transform XML to plain text, as needed by LanguageTool). As the logic for
+* Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
 * Uses the default language configured for the spell checker (ignores `lang` attributes).
-* In text mode, XML comments are ignored.
-* In text mode, it will not properly work on XML that is not well-formed.
+* In text mode:
+    * XML comments are not checked
+    * will not properly work on XML that is not well-formed
+    * Entities are not expanded
 * Switching between tabs can sometimes lead to the same error showing up more than
   once in the context menu.
 * Tested with Oxygen 16.1 only.
@@ -49,16 +50,15 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 
 ### Changelog
 
-* 2015-04-08:
-    * checking text should now work properly for nested XML tags
+* version 0.8 (2015-xx-yy):
+    * no more on-the-fly checking while typing
+    * added Ctrl+Shift+Return as a shortcut to start the check
+    * checking text now works properly for nested XML tags in author more
+    * checking text now also work in text mode
     * colors error markers are loaded from `~/.languagetool.cfg`,
       if set there with e.g. `errorColors=style:#ffb8b8, typographical:#b8b8ff`
-* 2015-04-03:
-    * added Ctrl+Shift+Return as a shortcut to start the check
-* 2015-03-06:
     * fixes for texts with special characters
-* 2014-08-12:
     * works with Java 1.6
-    * some cleanups
-* 2014-06-14:
+    * several cleanups
+* version 2014-06-02:
     * first snapshot release
