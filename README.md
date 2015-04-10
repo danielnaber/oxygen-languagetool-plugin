@@ -6,7 +6,8 @@ oxygen-languagetool-plugin
 Known limitations:
 
 * Requires a [LanguageTool](https://languagetool.org) server (2.9 or later)
-  running on localhost, port 8081 (HTTP, not HTTPS).
+  running on localhost, port 8081 (HTTP, not HTTPS). Setting this up
+  is very easy, see the "Download and Install" section below.
 * Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
