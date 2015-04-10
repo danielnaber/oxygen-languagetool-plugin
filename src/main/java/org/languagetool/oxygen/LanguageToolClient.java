@@ -37,9 +37,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Access to a LanguageTool instance via HTTP. Note that the rule that
- * checks for whitespace repetition is disabled, as it causes false
- * alarms in XML (at least the way we 'analyze' the XML).
+ * Access to a LanguageTool instance via HTTP.
  */
 class LanguageToolClient {
 
