@@ -54,8 +54,7 @@ class LanguageToolClient {
     try {
       String urlParameters =
               "language=" + langCode.replace('_', '-') +
-              "&text=" + URLEncoder.encode(text.getText(), "utf-8") +
-              "&disabled=WHITESPACE_RULE";
+              "&text=" + URLEncoder.encode(text.getText(), "utf-8");
       URL languageToolUrl = new URL(url);
       connection = openConnection(languageToolUrl);
       writeParameters(urlParameters, connection);

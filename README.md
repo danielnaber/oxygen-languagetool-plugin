@@ -5,20 +5,18 @@ oxygen-languagetool-plugin
 
 Major limitations, as this is just a prototype:
 
-* requires a [LanguageTool](https://languagetool.org) server running on localhost,
-  port 8081 (HTTP, not HTTPS)
+* Requires a [LanguageTool](https://languagetool.org) server (2.9 or later)
+  running on localhost, port 8081 (HTTP, not HTTPS).
 * Simply checks anything not inside XML tags (has no advanced logic how to
   transform XML to plain text, as needed by LanguageTool). As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
-* The LanguageTool whitespace checks (e.g. double whitespace) have been disabled,
-  as these are not useful without more knowledge about the XML.
-* uses the default language configured for the spell checker (ignores `lang` attributes)
-* in text mode, XML comments are ignored
-* in text mode, it will not properly work on XML that is not well-formed
-* switching between tabs can sometimes lead to the same error showing up more than
-  once in the context menu
-* tested with Oxygen 16.1 only
+* Uses the default language configured for the spell checker (ignores `lang` attributes).
+* In text mode, XML comments are ignored.
+* In text mode, it will not properly work on XML that is not well-formed.
+* Switching between tabs can sometimes lead to the same error showing up more than
+  once in the context menu.
+* Tested with Oxygen 16.1 only.
 
 Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free license.
 
@@ -26,13 +24,20 @@ Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Download and Install
 
-Got to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
-latest release. Unzip it in the `plugins` directory of your Oxygen installation and restart Oxygen.
+* Got to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
+  latest release. Unzip it in the `plugins` directory of your Oxygen installation and restart Oxygen.
+* Start the LanguageTool stand-alone version.
+* Select the text language you have also configured as the default language in Oxygen.
+* Go to `Text Checking -> Options...`
+* Select `Run as server on port 8081` and `Use above settings for the server`
+* Turn off the whitespace and spell checker rules. For English, these are at:
+    * `Miscellaneous` -> `Whitespace repetition (bad formatting)`
+    * `Possible Typo` -> `Possible spelling mistake`
 
 ### Usage
 
-Load an XML file, switch to author mode, and click the "LanguageTool Check" button or press Ctrl+Shift+Return.
-Errors that can be detected by LanguageTool will become underlined.
+Load an XML file and click the "LanguageTool Check" button or press Ctrl+Shift+Return.
+Errors detected by LanguageTool will become highlighted.
 
 ### Building
 
