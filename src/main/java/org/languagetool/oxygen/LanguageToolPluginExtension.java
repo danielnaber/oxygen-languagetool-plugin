@@ -65,10 +65,10 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   private final LanguageToolClient client = new LanguageToolClient(LANGUAGETOOL_URL);
   private final PerEditorHighlightData perEditorHighlightData = new PerEditorHighlightData();
+  private final TextPopupMenuCustomizer textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText();
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
   private AuthorPopupMenuCustomizer authorPopupMenuCustomizer;
-  private TextPopupMenuCustomizer textPopupMenuCustomizer;
   private Map<String, Color> errorTypeToColor = new HashMap<String, Color>();
 
   @Override
@@ -263,11 +263,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           highlighter.addHighlight(start, end, new DefaultHighlighter.DefaultHighlightPainter(markerColor));
           perEditorHighlightData.get(editorAccess).addInfo(new HighlightInfo(start, end, ruleMatch));
         }
-
-        if (textPopupMenuCustomizer != null) {
-          currentPage.removePopUpMenuCustomizer(textPopupMenuCustomizer);
-        }
-        textPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForText(editorAccess);
         currentPage.addPopUpMenuCustomizer(textPopupMenuCustomizer);
 
         long endTime = System.currentTimeMillis();
@@ -339,17 +334,13 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   class ApplyReplacementMenuCustomizerForText extends TextPopupMenuCustomizer {
-    private final WSEditor editorAccess;
-
-    ApplyReplacementMenuCustomizerForText(WSEditor editorAccess) {
-      this.editorAccess = editorAccess;
-    }
 
     @Override
     public void customizePopUpMenu(Object popUp, WSTextEditorPage textPage) {
       Object textComponent = textPage.getTextComponent();
       if (textComponent instanceof JTextArea) {
         int caretOffset = textPage.getCaretOffset();
+        WSEditor editorAccess = pluginWorkspaceAccess.getCurrentEditorAccess(StandalonePluginWorkspace.MAIN_EDITING_AREA);
         HighlightData highlightData = perEditorHighlightData.get(editorAccess);
         HighlightInfo hInfo = highlightData.getInfoForCaretOrNull(caretOffset);
         if (hInfo != null) {
