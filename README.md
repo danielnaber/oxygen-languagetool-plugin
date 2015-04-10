@@ -13,7 +13,7 @@ Known limitations:
 * Uses the default language configured for the spell checker (ignores `lang` attributes).
 * In text mode:
     * XML comments are not checked
-    * will not properly work on XML that is not well-formed
+    * Will not properly work on XML that is not well-formed
     * Entities are not expanded
 * Switching between tabs can sometimes lead to the same error showing up more than
   once in the context menu.
@@ -27,17 +27,17 @@ Thanks to [Oxygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 * Got to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
   latest release. Unzip it in the `plugins` directory of your Oxygen installation and restart Oxygen.
-* Start the LanguageTool stand-alone version.
+* Start the [LanguageTool](https://languagetool.org) stand-alone version.
 * Select the text language you have also configured as the default language in Oxygen.
 * Go to `Text Checking -> Options...`
 * Select `Run as server on port 8081` and `Use above settings for the server`
-* Turn off the whitespace and spell checker rules. For English, these are at:
+* Turn **off** the whitespace and spell checker rules. For English, these are at:
     * `Miscellaneous` -> `Whitespace repetition (bad formatting)`
     * `Possible Typo` -> `Possible spelling mistake`
 
 ### Usage
 
-Load an XML file and click the "LanguageTool Check" button or press Ctrl+Shift+Return.
+Load an XML file and click the `LanguageTool Check` button or press `Ctrl + Shift + Return`.
 Errors detected by LanguageTool will become highlighted.
 
 ### Building
@@ -50,9 +50,9 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
 
 ### Changelog
 
-* version 0.8 (2015-xx-yy):
+* version 2015-xx-yy:
     * no more on-the-fly checking while typing
-    * added Ctrl+Shift+Return as a shortcut to start the check
+    * added `Ctrl + Shift + Return` as a shortcut to start the check
     * checking text now works properly for nested XML tags in author more
     * checking text now also work in text mode
     * colors error markers are loaded from `~/.languagetool.cfg`,
