@@ -64,12 +64,21 @@ class TextCollector2 {
     final TextWithMapping outerMapping = new TextWithMapping();
     int originalCount = 0;
     int contentCount = 0;
-    final StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
+    boolean prevWasSpecial = false;
     for (int i = 0; i < filteredContent.length(); i++) {
       char c = filteredContent.charAt(i);
-      if (c != '\u0000') {
+      if (c == '\u0000') {
+        // Oxygen uses \u0000 to mark non-inline tags
+        if (!prevWasSpecial) {
+          sb.append(" ");  // turn \u0000 into space, but not more than one
+          contentCount++;
+        }
+        prevWasSpecial = true;
+      } else {
         contentCount++;
         sb.append(c);
+        prevWasSpecial = false;
       }
       outerMapping.addMapping(new TextRange(contentCount, contentCount + 1), new TextRange(originalCount, originalCount + 1));
       originalCount++;
