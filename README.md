@@ -13,7 +13,6 @@ Known limitations:
   lead to different error messages in both modes.
 * Uses the default language configured for the spell checker (ignores `lang` attributes).
 * In text mode:
-    * XML comments are not checked
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded
 * Tested with Oxygen 16.1 only.

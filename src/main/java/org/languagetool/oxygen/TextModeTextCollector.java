@@ -20,27 +20,20 @@ package org.languagetool.oxygen;
 
 /**
  * Collects the text part of a Text view in Oxygen.
+ * Considers comments to be text.
  */
 class TextModeTextCollector {
 
   TextWithMapping collectTexts(String content) {
     StringBuilder sb = new StringBuilder();
     TextWithMapping mapping = new TextWithMapping();
-    boolean inComment = false;
     int inTag = 0;
     int xmlStart = 0;
     int plainTextStart = 0;
     for (int i = 0; i < content.length(); i++) {
       char c = content.charAt(i);
-      if (i < content.length()-4 && content.substring(i, i+4).equals("<!--")) {
-        inComment = true;
-      } else if (i >= 3 && content.substring(i-3, i).equals("-->")) {
-        inComment = false;
-      }
-      if (inComment) {
-        continue;
-      }
-      if (c == '<') {
+      boolean commentStart = i < content.length()-4 && content.substring(i, i+4).equals("<!--");
+      if (c == '<' && !commentStart) {
         inTag++;
         if (i - xmlStart > 0) {
           TextRange xmlRange = new TextRange(xmlStart, i);

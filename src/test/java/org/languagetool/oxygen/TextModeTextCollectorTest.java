@@ -114,27 +114,52 @@ public class TextModeTextCollectorTest {
   }
 
   @Test
-  public void testIgnoreComments1() {
+  public void testComments1() {
     TextModeTextCollector textCollector = new TextModeTextCollector();
     TextWithMapping mapping = textCollector.collectTexts(
-            "<t>\n<!-- <b -->foo <b>bar</b></t>");
-    assertThat(mapping.getText(), is("\nfoo bar"));
+            "<t>\n<!-- I'm a comment -->foo <b>bar</b></t>");
+    assertThat(mapping.getText(), is("\n<!-- I'm a comment -->foo bar"));
     assertThat(mapping.getMapping().size(), is(2));
     String mapStr = mapping.getMapping().toString();
-    assertTrue("Got: " + mapStr, mapStr.contains("0-5=3-19"));
-    assertTrue("Got: " + mapStr, mapStr.contains("5-8=22-25"));
+    assertTrue("Got: " + mapStr, mapStr.contains("0-27=3-30"));
+    assertTrue("Got: " + mapStr, mapStr.contains("27-30=33-36"));
   }
 
   @Test
-  public void testIgnoreComments2() {
+  public void testComments2() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts(
+            "<t>\n<!-- I'm a\ncomment --><b>foo</b></t>");
+    assertThat(mapping.getText(), is("\n<!-- I'm a\ncomment -->foo"));
+    assertThat(mapping.getMapping().size(), is(2));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-23=3-26"));
+    assertTrue("Got: " + mapStr, mapStr.contains("23-26=29-32"));
+  }
+
+  @Test
+  public void testComments3() {
+    TextModeTextCollector textCollector = new TextModeTextCollector();
+    TextWithMapping mapping = textCollector.collectTexts(
+            "<t>\n<!-- <b -->foo <b>bar</b></t>");
+    assertThat(mapping.getText(), is("\n<!-- foo bar"));
+    assertThat(mapping.getMapping().size(), is(3));
+    String mapStr = mapping.getMapping().toString();
+    assertTrue("Got: " + mapStr, mapStr.contains("0-6=3-9"));
+    assertTrue("Got: " + mapStr, mapStr.contains("6-10=15-19"));
+    assertTrue("Got: " + mapStr, mapStr.contains("10-13=22-25"));
+  }
+
+  @Test
+  public void testComments4() {
     TextModeTextCollector textCollector = new TextModeTextCollector();
     TextWithMapping mapping = textCollector.collectTexts(
             "<t>\n<!-- b> -->foo <b>bar</b></t>");
-    assertThat(mapping.getText(), is("\nfoo bar"));
+    assertThat(mapping.getText(), is("\n<!-- b> -->foo bar"));
     assertThat(mapping.getMapping().size(), is(2));
     String mapStr = mapping.getMapping().toString();
-    assertTrue("Got: " + mapStr, mapStr.contains("0-5=3-19"));
-    assertTrue("Got: " + mapStr, mapStr.contains("5-8=22-25"));
+    assertTrue("Got: " + mapStr, mapStr.contains("0-16=3-19"));
+    assertTrue("Got: " + mapStr, mapStr.contains("16-19=22-25"));
   }
 
   @Test
