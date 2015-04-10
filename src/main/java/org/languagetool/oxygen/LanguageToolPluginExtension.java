@@ -18,6 +18,7 @@
  */
 package org.languagetool.oxygen;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -322,7 +323,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       for (Highlight highlight : highlights) {
         if (caretOffset >= highlight.getStartOffset() && caretOffset <= highlight.getEndOffset()) {
           RuleMatch match = (RuleMatch) highlight.getAdditionalData();
-          addMenuItems((JPopupMenu) popUp, match, new AuthorModeApplyReplacementAction(match, highlight, authorAccess));
+          addMenuItems((JPopupMenu) popUp, match, new AuthorModeApplyReplacementAction(match, authorAccess));
           break;
         }
       }
@@ -436,17 +437,15 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   class AuthorModeApplyReplacementAction extends AbstractAction {
 
     private final RuleMatch match;
-    private final Highlight highlight;
     private final AuthorAccess authorAccess;
 
-    AuthorModeApplyReplacementAction(RuleMatch match, Highlight highlight, AuthorAccess authorAccess) {
+    AuthorModeApplyReplacementAction(RuleMatch match, AuthorAccess authorAccess) {
       this.match = Objects.requireNonNull(match);
-      this.highlight = Objects.requireNonNull(highlight);
       this.authorAccess = Objects.requireNonNull(authorAccess);
     }
 
     @Override
-    public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(@NotNull ActionEvent event) {
       WSEditor editorAccess = pluginWorkspaceAccess.getCurrentEditorAccess(StandalonePluginWorkspace.MAIN_EDITING_AREA);
       WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
       AuthorDocumentController controller = authorPageAccess.getDocumentController();
@@ -483,7 +482,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
 
     @Override
-    public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(@NotNull ActionEvent event) {
       Object textComponent = textPage.getTextComponent();
       if (textComponent instanceof JTextArea) {
         JTextArea textArea = (JTextArea) textComponent;

@@ -36,9 +36,8 @@ class TextModeTextCollector {
       if (c == '<' && !commentStart) {
         inTag++;
         if (i - xmlStart > 0) {
-          TextRange xmlRange = new TextRange(xmlStart, i);
           TextRange plainTextRange = new TextRange(plainTextStart, sb.length());
-          //System.out.println("MAP: " + plainTextRange + " -> " + xmlRange);
+          TextRange xmlRange = new TextRange(xmlStart, i);
           mapping.addMapping(plainTextRange, xmlRange);
         }
       } else if (c == '>' && inTag > 0) {
