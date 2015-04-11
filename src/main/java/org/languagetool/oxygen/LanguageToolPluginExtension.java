@@ -143,7 +143,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     new Thread(new Runnable() {
       @Override
       public void run() {
-        checkText(highlighter, authorEditorPage, pluginWorkspaceAccess);
+        checkText(highlighter, authorEditorPage);
       }
     }).start();
   }
@@ -158,12 +158,12 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         } catch (InterruptedException e) {
           e.printStackTrace();
         }*/
-        checkText(textArea, editorAccess, currentPage, pluginWorkspaceAccess);
+        checkText(textArea, editorAccess, currentPage);
       }
     }).start();
   }
 
-  private void checkText(AuthorHighlighter highlighter, WSAuthorEditorPage authorEditorPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
+  private void checkText(AuthorHighlighter highlighter, WSAuthorEditorPage authorEditorPage) {
     long startTime = System.currentTimeMillis();
     try {
       AuthorDocumentController docController = authorEditorPage.getDocumentController();
@@ -171,7 +171,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       TextWithMapping textWithMapping = textCollector.collectTexts(docController);
       try {
         String langCode = getLanguageCode(textWithMapping);
-        LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
+        LanguageToolClient client = getLanguageToolClient();
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
         for (RuleMatch match : ruleMatches) {
@@ -203,7 +203,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     return docLanguage != null ? docLanguage : config.getDefaultLanguageCode();
   }
 
-  private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
+  private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage) {
     long startTime = System.currentTimeMillis();
     try {
       Highlighter highlighter = textArea.getHighlighter();
@@ -214,7 +214,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         TextModeTextCollector textCollector = new TextModeTextCollector();
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
         String langCode = getLanguageCode(textWithMapping);
-        LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
+        LanguageToolClient client = getLanguageToolClient();
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         for (RuleMatch ruleMatch : ruleMatches) {
           Color markerColor = getMarkerColor(ruleMatch);
@@ -239,7 +239,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
-  private LanguageToolClient getLanguageToolClient(StandalonePluginWorkspace pluginWorkspaceAccess) {
+  private LanguageToolClient getLanguageToolClient() {
     return new LanguageToolClient(pluginWorkspaceAccess.getOptionsStorage().getOption(SERVER_URL_KEY, DEFAULT_URL));
   }
 
