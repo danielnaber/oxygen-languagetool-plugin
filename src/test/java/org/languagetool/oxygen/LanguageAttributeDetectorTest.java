@@ -39,11 +39,13 @@ public class LanguageAttributeDetectorTest {
     // first occurrence wins:
     assertThat(detector.getDocumentLanguage("<x xml:lang='de-DE'><p lang='xx'></p></x>"), is("de-DE"));
     assertThat(detector.getDocumentLanguage("<x xml:lang='de-DE'><p xml:lang='xx'></p></x>"), is("de-DE"));
-    // invalid XML:
+    // invalid XML after the attribute we're looking for:
     assertNull(detector.getDocumentLanguage("<x"));
-    assertNull(detector.getDocumentLanguage("<x xml:lang='de-DE'><p"));
-    assertNull(detector.getDocumentLanguage("<x xml:lang='de-DE'>p>"));
-    assertNull(detector.getDocumentLanguage("<x xml:lang='de-DE'></x><x></x>"));
+    assertThat(detector.getDocumentLanguage("<x xml:lang='de-DE'><p"), is("de-DE"));
+    assertThat(detector.getDocumentLanguage("<x xml:lang='de-DE'>p>"), is("de-DE"));
+    assertThat(detector.getDocumentLanguage("<x xml:lang='de-DE'></x><x></x>"), is("de-DE"));
+    // invalid XML before the attribute we're looking for:
+    assertNull(detector.getDocumentLanguage("<p<x xml:lang='de-DE'></x>)"));
   }
   
 }

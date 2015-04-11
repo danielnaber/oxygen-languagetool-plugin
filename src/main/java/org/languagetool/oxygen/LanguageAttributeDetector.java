@@ -36,18 +36,21 @@ class LanguageAttributeDetector {
 
   @Nullable
   String getDocumentLanguage(String xml) {
+    LangAttributeHandler handler = new LangAttributeHandler();
     try {
       SAXParserFactory factory = SAXParserFactory.newInstance();
       SAXParser saxParser = factory.newSAXParser();
       saxParser.getXMLReader().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
       InputStream is = new ByteArrayInputStream(xml.getBytes());
-      LangAttributeHandler handler = new LangAttributeHandler();
       saxParser.parse(is, handler);
       return handler.getLanguageCode();
     } catch (SAXParseException e) {
       // users may try to check a document that's not well-formed, so don't crash:
       System.err.println("Could not parse document to get document language: " + e.getMessage());
       return null;
+    } catch (LangAttributeHandler.StopParsingException e) {
+      // we found the attribute, no need to parse further:
+      return handler.getLanguageCode();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -65,8 +68,10 @@ class LanguageAttributeDetector {
         String nsLang = attrs.getValue("xml:lang");
         if (lang != null) {
           languageCode = lang;
+          throw new StopParsingException();
         } else if (nsLang != null) {
           languageCode = nsLang;
+          throw new StopParsingException();
         }
       }
     }
@@ -74,6 +79,10 @@ class LanguageAttributeDetector {
     @Nullable
     public String getLanguageCode() {
       return languageCode;
+    }
+
+    private static class StopParsingException extends SAXException {
+      // we don't need parse further, so we stop by throwing this exception
     }
   }
 
