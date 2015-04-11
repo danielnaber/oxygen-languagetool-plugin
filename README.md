@@ -53,7 +53,7 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
     * no more on-the-fly checking while typing
     * added `Ctrl + Shift + Return` as a shortcut to start the check
     * checking text now works properly for nested XML tags in author more
-    * checking text now also work in text mode
+    * checking text now also works in text mode
     * colors error markers are loaded from `~/.languagetool.cfg`,
       if set there with e.g. `errorColors=style:#ffb8b8, typographical:#b8b8ff`
     * fixes for texts with special characters
