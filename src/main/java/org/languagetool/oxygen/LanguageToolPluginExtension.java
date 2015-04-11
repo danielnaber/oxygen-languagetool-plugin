@@ -98,9 +98,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         Object textComponent = currentPage.getTextComponent();
         if (textComponent instanceof JTextArea) {
           JTextArea textArea = (JTextArea) textComponent;
-          // activate for on-the-fly checking:
-          /*textArea.addKeyListener(new KeyListener() { ... });*/
-          checkText(textArea, editorAccess, currentPage, pluginWorkspaceAccess);
+          checkTextInBackground(textArea, editorAccess, currentPage);
         }
       }
       
