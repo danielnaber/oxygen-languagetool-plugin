@@ -11,7 +11,8 @@ Known limitations:
 * Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
-* Uses the default language configured for the spell checker (ignores `lang` attributes).
+* Supports only one language per document: If it doesn't find a `lang` or `xml:lang`
+  attribute, it uses the default language configured for the spell checker.
 * In text mode:
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded
