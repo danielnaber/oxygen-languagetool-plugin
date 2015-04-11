@@ -26,8 +26,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.io.FileInputStream;
 
 /**
  * We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
@@ -48,11 +47,18 @@ class OxygenConfiguration {
     File preferencesFile = new File(preferencesDir, PREFS_FILE);
     if (preferencesFile.exists()) {
       try {
-        String fileContent = loadFile(preferencesFile);
-        Document preferencesDoc = XmlTools.getDocument(fileContent);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        Node node = (Node) xPath.evaluate("//field[@name='language']/String/text()", preferencesDoc, XPathConstants.NODE);
-        return node.getNodeValue();
+        FileInputStream stream = null;
+        try {
+          stream = new FileInputStream(preferencesFile);
+          Document preferencesDoc = XmlTools.getDocument(stream);
+          XPath xPath = XPathFactory.newInstance().newXPath();
+          Node node = (Node) xPath.evaluate("//field[@name='language']/String/text()", preferencesDoc, XPathConstants.NODE);
+          return node.getNodeValue();
+        } finally {
+          if (stream != null) {
+            stream.close();
+          }
+        }
       } catch (Exception e) {
         System.err.println("Could not load language from " + preferencesFile + ": " + e.getMessage() + ", will use English for LanguageTool check");
         e.printStackTrace();
@@ -62,19 +68,6 @@ class OxygenConfiguration {
       System.err.println("Warning: No preference file found at " + preferencesFile + ", will use English for LanguageTool check");
       return "en";
     }
-  }
-
-  private String loadFile(File file) throws FileNotFoundException {
-    StringBuilder sb = new StringBuilder();
-    Scanner sc = new Scanner(file);
-    try {
-      while (sc.hasNextLine()) {
-        sb.append(sc.nextLine());
-      }
-    } finally {
-      sc.close();
-    }
-    return sb.toString();
   }
 
 }

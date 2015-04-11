@@ -23,19 +23,19 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
+import java.io.InputStream;
 
 final class XmlTools {
 
   private XmlTools() {
   }
 
-  static Document getDocument(String xml) {
+  static Document getDocument(InputStream xml) {
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(false);  // we just ignore namespaces
       DocumentBuilder builder = factory.newDocumentBuilder();
-      InputSource inputSource = new InputSource(new StringReader(xml));
+      InputSource inputSource = new InputSource(xml);
       return builder.parse(inputSource);
     } catch (Exception e) {
       throw new RuntimeException("Could not parse XML", e);

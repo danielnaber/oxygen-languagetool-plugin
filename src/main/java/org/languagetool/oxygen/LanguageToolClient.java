@@ -41,10 +41,10 @@ import java.util.List;
  */
 class LanguageToolClient {
 
-  private final String url;
+  private final String serverUrl;
 
-  LanguageToolClient(String url) {
-    this.url = url;
+  LanguageToolClient(String serverUrl) {
+    this.serverUrl = serverUrl;
   }
 
   List<RuleMatch> checkText(TextWithMapping text, String langCode) {
@@ -53,17 +53,16 @@ class LanguageToolClient {
       String urlParameters =
               "language=" + langCode.replace('_', '-') +
               "&text=" + URLEncoder.encode(text.getText(), "utf-8");
-      URL languageToolUrl = new URL(url);
+      URL languageToolUrl = new URL(serverUrl);
       connection = openConnection(languageToolUrl);
       writeParameters(urlParameters, connection);
       InputStream inputStream = connection.getInputStream();
-      String xml = streamToString(inputStream, "utf-8");
-      return parseXml(xml, text);
+      return parseXml(inputStream, text);
     } catch (MappingException e) {
       throw e;
     } catch (Exception e) {
       throw new RuntimeException(
-              "Could not check text using LanguageTool server at URL '" + url + "':\n" +
+              "Could not check text using LanguageTool server at URL '" + serverUrl + "':\n" +
               e.getMessage() + "\n" +
               "Please make sure the LanguageTool server is running at this URL or\n" +
               "change the location at Options -> Preferences... -> Plugins.", e);
@@ -91,35 +90,11 @@ class LanguageToolClient {
     try {
       wr.write(urlParameters.getBytes("UTF-8"));
     } finally {
-      wr.flush();
       wr.close();
     }
   }
 
-  private static String streamToString(InputStream is, String charsetName) throws IOException {
-    InputStreamReader isr = new InputStreamReader(is, charsetName);
-    try {
-      return readerToString(isr);
-    } finally {
-      isr.close();
-    }
-  }
-
-  private static String readerToString(Reader reader) throws IOException {
-    StringBuilder sb = new StringBuilder();
-    int readBytes = 0;
-    char[] chars = new char[4000];
-    while (readBytes >= 0) {
-      readBytes = reader.read(chars, 0, 4000);
-      if (readBytes <= 0) {
-        break;
-      }
-      sb.append(new String(chars, 0, readBytes));
-    }
-    return sb.toString();
-  }
-
-  private List<RuleMatch> parseXml(String xml, TextWithMapping text) throws XPathExpressionException {
+  private List<RuleMatch> parseXml(InputStream xml, TextWithMapping text) throws XPathExpressionException {
     XPath xPath = XPathFactory.newInstance().newXPath();
     Document document = XmlTools.getDocument(xml);
     NodeList nodeSet = (NodeList) xPath.evaluate("//error", document, XPathConstants.NODESET);
