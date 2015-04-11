@@ -20,9 +20,8 @@ package org.languagetool.oxygen;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import ro.sync.ecss.extensions.api.*;
+import ro.sync.ecss.extensions.api.AuthorAccess;
+import ro.sync.ecss.extensions.api.AuthorDocumentController;
 import ro.sync.ecss.extensions.api.highlights.AuthorHighlighter;
 import ro.sync.ecss.extensions.api.highlights.ColorHighlightPainter;
 import ro.sync.ecss.extensions.api.highlights.Highlight;
@@ -33,22 +32,20 @@ import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
 import ro.sync.exml.workspace.api.editor.page.text.TextPopupMenuCustomizer;
 import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
-import ro.sync.exml.workspace.api.standalone.*;
+import ro.sync.exml.workspace.api.standalone.MenuBarCustomizer;
+import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
+import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
+import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
 import ro.sync.exml.workspace.api.standalone.ui.ToolbarButton;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -60,7 +57,6 @@ import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.SERV
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
-  private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
   private static final Color DEFAULT_COLOR = new Color(255, 199, 66);
 
   private final PerEditorHighlightData perEditorHighlightData = new PerEditorHighlightData();
@@ -145,42 +141,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   }
 
-  // We cannot access the global preferences via API it seems (http://www.oxygenxml.com/forum/topic9966.html#p29244),
-  // so we access the file on disk:
-  private String getDefaultLanguageCode(StandalonePluginWorkspace pluginWorkspaceAccess) {
-    String preferencesDir = pluginWorkspaceAccess.getPreferencesDirectory();
-    File preferencesFile = new File(preferencesDir, PREFS_FILE);
-    if (preferencesFile.exists()) {
-      try {
-        String fileContent = loadFile(preferencesFile);
-        Document preferencesDoc = XmlTools.getDocument(fileContent);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        Node node = (Node) xPath.evaluate("//field[@name='language']/String/text()", preferencesDoc, XPathConstants.NODE);
-        return node.getNodeValue();
-      } catch (Exception e) {
-        System.err.println("Could not load language from " + preferencesFile + ": " + e.getMessage() + ", will use English for LanguageTool check");
-        e.printStackTrace();
-        return "en";
-      }
-    } else {
-      System.err.println("Warning: No preference file found at " + preferencesFile + ", will use English for LanguageTool check");
-      return "en";
-    }
-  }
-
-  private String loadFile(File file) throws FileNotFoundException {
-    StringBuilder sb = new StringBuilder();
-    Scanner sc = new Scanner(file);
-    try {
-      while (sc.hasNextLine()) {
-        sb.append(sc.nextLine());
-      }
-    } finally {
-      sc.close();
-    }
-    return sb.toString();
-  }
-
   private synchronized void checkTextInBackground(final AuthorHighlighter highlighter, final WSAuthorEditorPage authorEditorPage) {
     new Thread(new Runnable() {
       @Override
@@ -212,7 +172,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       AuthorModeTextCollector textCollector = new AuthorModeTextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(docController);
       try {
-        String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
+        OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
+        String langCode = config.getDefaultLanguageCode();
         // TODO: also consider document language ('xml:lang' or 'lang' attributes)
         LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
@@ -243,7 +204,8 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
     long startTime = System.currentTimeMillis();
     try {
-      String langCode = getDefaultLanguageCode(pluginWorkspaceAccess);
+      OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
+      String langCode = config.getDefaultLanguageCode();
       Highlighter highlighter = textArea.getHighlighter();
       try {
         perEditorHighlightData.get(editorAccess).clear();
