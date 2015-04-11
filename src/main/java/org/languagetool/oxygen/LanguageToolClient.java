@@ -56,7 +56,6 @@ class LanguageToolClient {
       URL languageToolUrl = new URL(url);
       connection = openConnection(languageToolUrl);
       writeParameters(urlParameters, connection);
-      // TODO: properly handle error 500 (which we get e.g. for unsupported languages)
       InputStream inputStream = connection.getInputStream();
       String xml = streamToString(inputStream, "utf-8");
       return parseXml(xml, text);
