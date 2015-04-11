@@ -22,6 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import ro.sync.net.protocol.http.HttpExceptionWithDetails;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -60,10 +61,21 @@ class LanguageToolClient {
       return parseXml(inputStream, text);
     } catch (MappingException e) {
       throw e;
+    } catch (HttpExceptionWithDetails e) {
+      String reason = e.getReason();
+      System.err.println(e.getMessage() + ": " + reason);
+      if (reason.length() > 80) {
+        reason = reason.substring(0, 80) + "...";
+      }
+      throw new RuntimeException("Could not check text using LanguageTool server at URL '" + serverUrl + "':\n\n" +
+              e.getMessage() + "\n" +
+              reason + "\n\n" +
+              "Please make sure the LanguageTool server is running at this URL or\n" +
+              "change the location at Options -> Preferences... -> Plugins.", e);
     } catch (Exception e) {
       throw new RuntimeException(
-              "Could not check text using LanguageTool server at URL '" + serverUrl + "':\n" +
-              e.getMessage() + "\n" +
+              "Could not check text using LanguageTool server at URL '" + serverUrl + "':\n\n" +
+              e.getMessage() + "\n\n" +
               "Please make sure the LanguageTool server is running at this URL or\n" +
               "change the location at Options -> Preferences... -> Plugins.", e);
     } finally {
