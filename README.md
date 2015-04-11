@@ -52,6 +52,8 @@ to a sub-directory of your `oxygen/plugins` folder and restart Oxygen.
     * LanguageTool server can be configured at `Options -> Preferences... -> Plugins`
     * no more on-the-fly checking while typing
     * added `Ctrl + Shift + Return` as a shortcut to start the check
+    * uses the first `lang` or `xml:lang` attribute to detect the document language,
+      if none is found, it uses the default language
     * checking text now works properly for nested XML tags in author more
     * checking text now also works in text mode
     * colors error markers are loaded from `~/.languagetool.cfg`,

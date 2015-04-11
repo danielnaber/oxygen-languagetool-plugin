@@ -172,9 +172,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       AuthorModeTextCollector textCollector = new AuthorModeTextCollector();
       TextWithMapping textWithMapping = textCollector.collectTexts(docController);
       try {
-        OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
-        String langCode = config.getDefaultLanguageCode();
-        // TODO: also consider document language ('xml:lang' or 'lang' attributes)
+        String langCode = getLanguageCode(textWithMapping);
         LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         highlighter.removeAllHighlights();
@@ -201,11 +199,15 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
+  private String getLanguageCode(TextWithMapping textWithMapping) {
+    OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
+    String docLanguage = textWithMapping.getLanguageCode();
+    return docLanguage != null ? docLanguage : config.getDefaultLanguageCode();
+  }
+
   private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage, StandalonePluginWorkspace pluginWorkspaceAccess) {
     long startTime = System.currentTimeMillis();
     try {
-      OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
-      String langCode = config.getDefaultLanguageCode();
       Highlighter highlighter = textArea.getHighlighter();
       try {
         perEditorHighlightData.get(editorAccess).clear();
@@ -213,6 +215,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
         TextModeTextCollector textCollector = new TextModeTextCollector();
         TextWithMapping textWithMapping = textCollector.collectTexts(textArea.getText());
+        String langCode = getLanguageCode(textWithMapping);
         LanguageToolClient client = getLanguageToolClient(pluginWorkspaceAccess);
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
         for (RuleMatch ruleMatch : ruleMatches) {

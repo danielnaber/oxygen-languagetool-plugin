@@ -32,7 +32,7 @@ public class LanguageToolClientTest {
   @Ignore("needs LanguageTool running locally in server mode")
   public void testCheckViaHttp() {
     LanguageToolClient client = new LanguageToolClient("http://localhost:8081/");
-    TextWithMapping text = new TextWithMapping();
+    TextWithMapping text = new TextWithMapping(null);
     text.addMapping(new TextRange(0, 16), new TextRange(10, 26));
     text.setText("This is an text.");
     List<RuleMatch> ruleMatches = client.checkText(text, "en");

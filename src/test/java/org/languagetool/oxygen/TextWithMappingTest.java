@@ -27,7 +27,7 @@ public class TextWithMappingTest {
 
   @Test
   public void test1() {
-    TextWithMapping mapping = new TextWithMapping();
+    TextWithMapping mapping = new TextWithMapping(null);
     mapping.addMapping(new TextRange(0, 1), new TextRange(1, 5));
     mapping.setText("hallo");
     assertThat(mapping.getOxygenPositionFor(0), is(1));
@@ -35,7 +35,7 @@ public class TextWithMappingTest {
 
   @Test
   public void test2() {
-    TextWithMapping mapping = new TextWithMapping();
+    TextWithMapping mapping = new TextWithMapping(null);
     mapping.addMapping(new TextRange(0, 1), new TextRange(1, 5));
     mapping.addMapping(new TextRange(1, 5), new TextRange(10, 14));
     mapping.setText("hallo");
@@ -47,7 +47,7 @@ public class TextWithMappingTest {
 
   @Test(expected = RuntimeException.class)
   public void testInvalidOffset() {
-    TextWithMapping mapping = new TextWithMapping();
+    TextWithMapping mapping = new TextWithMapping(null);
     mapping.addMapping(new TextRange(0, 1), new TextRange(1, 5));
     mapping.setText("hallo");
     mapping.getOxygenPositionFor(1);  // end position is exclusive

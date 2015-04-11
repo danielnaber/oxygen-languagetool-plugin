@@ -18,6 +18,8 @@
  */
 package org.languagetool.oxygen;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,10 +30,31 @@ class TextWithMapping {
 
   private final Map<TextRange, TextRange> mapping = new HashMap<TextRange, TextRange>();
 
+  private final String mappingName;
+
+  private final String languageCode;
   private String text;
+
+  TextWithMapping(@Nullable String languageCode) {
+    this(null, languageCode);
+  }
+
+  TextWithMapping(@Nullable String mappingName, @Nullable String languageCode) {
+    this.mappingName = mappingName;
+    this.languageCode = languageCode;
+  }
+
+  String getMappingName() {
+    return mappingName;
+  }
 
   void setText(String text) {
     this.text = text;
+  }
+
+  @Nullable
+  String getLanguageCode() {
+    return languageCode;
   }
 
   void addMapping(TextRange fromRange, TextRange toRange) {
@@ -56,7 +79,8 @@ class TextWithMapping {
         return oxygenRange.getFrom() + subOffset;
       }
     }
-    throw new RuntimeException("Could not map offset " + offset + ", not found in mapping of size " + mapping.size() + ": " + mapping);
+    throw new RuntimeException("Could not map offset " + offset + ", not found in mapping '" + 
+                               mappingName + "' of size " + mapping.size() + ": " + mapping);
   }
 
   @Override

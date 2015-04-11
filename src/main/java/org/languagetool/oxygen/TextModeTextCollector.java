@@ -25,11 +25,12 @@ package org.languagetool.oxygen;
 class TextModeTextCollector {
 
   TextWithMapping collectTexts(String content) {
-    StringBuilder sb = new StringBuilder();
-    TextWithMapping mapping = new TextWithMapping();
+    String langCode = new LanguageAttributeDetector().getDocumentLanguage(content);
+    TextWithMapping mapping = new TextWithMapping(langCode);
     int inTag = 0;
     int xmlStart = 0;
     int plainTextStart = 0;
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < content.length(); i++) {
       char c = content.charAt(i);
       boolean commentStart = i < content.length()-4 && content.substring(i, i+4).equals("<!--");

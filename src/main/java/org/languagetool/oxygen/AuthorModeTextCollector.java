@@ -21,6 +21,7 @@ package org.languagetool.oxygen;
 import ro.sync.ecss.extensions.api.AuthorDocumentController;
 import ro.sync.ecss.extensions.api.filter.AuthorFilteredContent;
 import ro.sync.ecss.extensions.api.filter.AuthorNodesFilter;
+import ro.sync.ecss.extensions.api.node.AuthorDocumentFragment;
 import ro.sync.ecss.extensions.api.node.AuthorNode;
 
 import javax.swing.text.BadLocationException;
@@ -33,6 +34,9 @@ class AuthorModeTextCollector {
 
   TextWithMapping collectTexts(AuthorDocumentController docController) throws BadLocationException {
     int endOffset = docController.getAuthorDocumentNode().getEndOffset();
+    AuthorDocumentFragment fragment = docController.createDocumentFragment(0, endOffset);
+    String xml = docController.serializeFragmentToXML(fragment);
+    String langCode = new LanguageAttributeDetector().getDocumentLanguage(xml);
     final AuthorFilteredContent filteredContent = docController.getFilteredContent(0, endOffset, new AuthorNodesFilter() {
       @Override
       public boolean shouldFilterNode(AuthorNode authorNode) {
@@ -42,25 +46,23 @@ class AuthorModeTextCollector {
     // getFilteredContent() leaves specials chars (\u0000) in its string,
     // so we need another mapping that provides a view without those,
     // as they would confuse LT:
-    final TextWithMapping outerMapping = getOuterMapping(filteredContent);
-    TextWithMapping innerMapping = new TextWithMapping() {
+    final TextWithMapping innerMapping = getInnerMapping(filteredContent, langCode);
+    TextWithMapping outerMapping = new TextWithMapping("outer", langCode) {
       @Override
       int getOxygenPositionFor(int offset) {
-        int pos = outerMapping.getOxygenPositionFor(offset);
+        int pos = innerMapping.getOxygenPositionFor(offset);
         return filteredContent.getOriginalOffset(pos);
       }
       @Override
       String getText() {
-        return outerMapping.getText();
+        return innerMapping.getText();
       }
     };
-    //debug:
-    //System.out.println(outerMapping.getText());
-    return innerMapping;
+    return outerMapping;
   }
 
-  private TextWithMapping getOuterMapping(AuthorFilteredContent filteredContent) {
-    final TextWithMapping outerMapping = new TextWithMapping();
+  private TextWithMapping getInnerMapping(AuthorFilteredContent filteredContent, String langCode) {
+    final TextWithMapping innerMapping = new TextWithMapping("inner", langCode);
     int originalCount = 0;
     int contentCount = 0;
     StringBuilder sb = new StringBuilder();
@@ -79,11 +81,11 @@ class AuthorModeTextCollector {
         sb.append(c);
         prevWasSpecial = false;
       }
-      outerMapping.addMapping(new TextRange(contentCount, contentCount + 1), new TextRange(originalCount, originalCount + 1));
+      innerMapping.addMapping(new TextRange(contentCount - 1, contentCount + 1), new TextRange(originalCount - 1, originalCount + 1));
       originalCount++;
     }
-    outerMapping.setText(sb.toString());
-    return outerMapping;
+    innerMapping.setText(sb.toString());
+    return innerMapping;
   }
 
 }
