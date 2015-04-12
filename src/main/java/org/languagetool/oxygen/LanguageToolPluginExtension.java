@@ -197,12 +197,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
-  private String getLanguageCode(TextWithMapping textWithMapping) {
-    OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
-    String docLanguage = textWithMapping.getLanguageCode();
-    return docLanguage != null ? docLanguage : config.getDefaultLanguageCode();
-  }
-
   private void checkText(JTextArea textArea, WSEditor editorAccess, WSTextEditorPage currentPage) {
     long startTime = System.currentTimeMillis();
     try {
@@ -216,6 +210,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         String langCode = getLanguageCode(textWithMapping);
         LanguageToolClient client = getLanguageToolClient();
         List<RuleMatch> ruleMatches = client.checkText(textWithMapping, langCode);
+        
         for (RuleMatch ruleMatch : ruleMatches) {
           Color markerColor = getMarkerColor(ruleMatch);
           int start = ruleMatch.getOxygenOffsetStart() - 1;
@@ -237,6 +232,12 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     } catch (Exception e) {
       showErrorDialog(e);
     }
+  }
+
+  private String getLanguageCode(TextWithMapping textWithMapping) {
+    OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
+    String docLanguage = textWithMapping.getLanguageCode();
+    return docLanguage != null ? docLanguage : config.getDefaultLanguageCode();
   }
 
   private LanguageToolClient getLanguageToolClient() {
@@ -298,7 +299,6 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   class ApplyReplacementMenuCustomizerForText extends TextPopupMenuCustomizer {
-
     @Override
     public void customizePopUpMenu(Object popUp, WSTextEditorPage textPage) {
       Object textComponent = textPage.getTextComponent();
