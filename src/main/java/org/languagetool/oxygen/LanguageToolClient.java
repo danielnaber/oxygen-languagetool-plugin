@@ -62,11 +62,8 @@ class LanguageToolClient {
     } catch (MappingException e) {
       throw e;
     } catch (HttpExceptionWithDetails e) {
-      String reason = e.getReason();
+      String reason = getErrorReason(e);
       System.err.println(e.getMessage() + ": " + reason);
-      if (reason.length() > 80) {
-        reason = reason.substring(0, 80) + "...";
-      }
       throw new RuntimeException("Could not check text using LanguageTool server at URL '" + serverUrl + "':\n\n" +
               e.getMessage() + "\n" +
               reason + "\n\n" +
@@ -83,6 +80,17 @@ class LanguageToolClient {
         connection.disconnect();
       }
     }
+  }
+
+  private String getErrorReason(HttpExceptionWithDetails e) {
+    String reason = e.getReason();
+    if (reason.length() > 80) {
+      reason = Helper.join(Helper.splitAtSpace(reason, 80), "\n");
+      if (reason.length() > 500) {
+        reason = reason.substring(0, 500) + "...";
+      }
+    }
+    return reason;
   }
 
   private HttpURLConnection openConnection(URL languageToolUrl) throws IOException {

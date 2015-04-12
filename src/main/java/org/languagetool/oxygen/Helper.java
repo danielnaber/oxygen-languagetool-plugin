@@ -44,5 +44,13 @@ final class Helper {
     return result;
   }
 
+  static String join(List<String> list, String delimiter) {
+    StringBuilder sb = new StringBuilder();
+    for (String s : list) {
+      sb.append(s);
+      sb.append(delimiter);
+    }
+    return sb.toString();
+  }
 
 }
