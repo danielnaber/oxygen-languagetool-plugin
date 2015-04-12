@@ -262,6 +262,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private void addMenuItems(JPopupMenu popUp, RuleMatch match, Action action) {
     List<String> splitMessage = Helper.splitAtSpace(match.getMessage(), 40);
     int i = 0;
+    popUp.addSeparator();
     for (String s : splitMessage) {
       JMenuItem menuItem = new JMenuItem(i == 0 ? s : "  " + s);
       popUp.add(menuItem);
