@@ -31,9 +31,10 @@ you have problems.
 * Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
+* Does not work in Grid view
 * Supports only one language per document. If it doesn't find a `lang` or `xml:lang`
   attribute, it uses the default language configured for the spell checker.
-* In text mode:
+* In Text mode:
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded
 * Tested with oXygen 16.1 only.
@@ -58,7 +59,7 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
     * added `Ctrl + Shift + Return` as a shortcut to start the check
     * uses the first `lang` or `xml:lang` attribute to detect the document language,
       if none is found, it uses the default language
-    * checking text now works properly for nested XML tags in author more
+    * checking text now works properly for nested XML tags in Author mode
     * checking text now also works in text mode
     * error marker colors are loaded from `.languagetool.cfg` in your home directory,
       if set there with e.g. `errorColors=style:#ffb8b8, typographical:#b8b8ff`
