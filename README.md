@@ -25,7 +25,7 @@ you have problems.
 
 ### Known Limitations
 
-* Requires a [LanguageTool](https://languagetool.org) server (2.9 or later).
+* Requires a [LanguageTool](https://languagetool.org) server.
   By default, it needs to be running at `http://localhost:8081`. Setting this up
   is very easy, see the "Download and Install" section above.
 * Basically, it simply checks anything not inside XML tags. As the logic for
@@ -43,7 +43,7 @@ you have problems.
 
 Building the source code requires Java 6 or later, Maven, and your `.m2/settings.xml` to be set up
 [as described here](http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration).
-Call `mvn package`, then unzip the resulting `target/oxygen-sample-plugin-workspace-access-1.0-SNAPSHOT-plugin.jar`
+Call `mvn package`, then unzip the resulting `target/oxygen-plugin-1.0-SNAPSHOT-plugin.jar`
 to a sub-directory of your `oxygen/plugins` folder and restart oXygen.
 
 Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free license.
@@ -60,7 +60,7 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
       if none is found, it uses the default language
     * checking text now works properly for nested XML tags in author more
     * checking text now also works in text mode
-    * colors error markers are loaded from `~/.languagetool.cfg`,
+    * error marker colors are loaded from `.languagetool.cfg` in your home directory,
       if set there with e.g. `errorColors=style:#ffb8b8, typographical:#b8b8ff`
     * fixes for texts with special characters
     * works with Java 1.6
