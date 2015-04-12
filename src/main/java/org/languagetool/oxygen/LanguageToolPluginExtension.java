@@ -124,7 +124,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     pluginWorkspaceAccess.addToolbarComponentsCustomizer(new ToolbarComponentsCustomizer() {
       @Override
       public void customizeToolbar(ToolbarInfo toolbarInfo) {
-        if ("SampleWorkspaceAccessToolbarID".equals(toolbarInfo.getToolbarID())) {
+        if ("LanguageToolWorkspaceAccessToolbarID".equals(toolbarInfo.getToolbarID())) {
           List<JComponent> components = new ArrayList<JComponent>();
           JComponent[] initialComponents = toolbarInfo.getComponents();
           if (initialComponents != null && initialComponents.length > 0) {

@@ -15,6 +15,5 @@
  
  <extension type="WorkspaceAccess" class="org.languagetool.oxygen.LanguageToolPluginExtension"/>
  <extension type="OptionPage" class="org.languagetool.oxygen.LanguageToolOptionPagePluginExtension"/> 
- <view id="SampleWorkspaceAccessID" initialSide="WEST" initialRow="0"/>
- <toolbar id="SampleWorkspaceAccessToolbarID" initialSide="NORTH" initialRow="1"/>
+ <toolbar id="LanguageToolWorkspaceAccessToolbarID" initialSide="NORTH" initialRow="1"/>
 </plugin>
