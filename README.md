@@ -1,12 +1,12 @@
-oxygen-languagetool-plugin
-==========================
+LanguageTool for oXygen
+=======================
 
 **Beta version** of a [LanguageTool](https://languagetool.org/) plugin
 for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html).
 
 ### Download and Install
 
-* Got to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
+* Go to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
   latest release. Unzip it in the `plugins` directory of your oXygen installation and restart oXygen.
 * Start the [LanguageTool](https://languagetool.org) stand-alone version.
 * Go to `Text Checking -> Options...`
