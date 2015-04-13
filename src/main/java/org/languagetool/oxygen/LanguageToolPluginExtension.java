@@ -57,6 +57,7 @@ import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.*;
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
+  private static final String INTERNET_SERVER_URL = "https://languagetool.org:8081";
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   private static final Color DEFAULT_COLOR = new Color(255, 199, 66);
 
@@ -188,8 +189,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
           highlighter.addHighlight(start, end, painter, match);
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Check time: " + (endTime-startTime) + "ms for " + textWithMapping.getText().length() + " bytes, "
-                + ruleMatches.size() + " matches, language: " + langCode);
+        logCheck(startTime, endTime, textWithMapping, client, ruleMatches);
       } catch (Exception e) {
         showErrorDialog(e);
       }
@@ -222,8 +222,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         currentPage.addPopUpMenuCustomizer(textPopupMenuCustomizer);
 
         long endTime = System.currentTimeMillis();
-        System.out.println("Check time: " + (endTime-startTime) + "ms for " + textWithMapping.getText().length() + " bytes, "
-                + ruleMatches.size() + " matches, language: " + langCode);
+        logCheck(startTime, endTime, textWithMapping, client, ruleMatches);
 
       } catch (BadLocationException e) {
         e.printStackTrace();
@@ -235,6 +234,12 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     }
   }
 
+  private void logCheck(long startTime, long endTime, TextWithMapping textWithMapping, LanguageToolClient client, List<RuleMatch> ruleMatches) {
+    System.out.println("LanguageTool server: " + client.getServerUrl() + ", check time: " + (endTime-startTime) + "ms for "
+            + textWithMapping.getText().length() + " bytes, "
+            + ruleMatches.size() + " matches, language: " + textWithMapping.getLanguageCode());
+  }
+
   private String getLanguageCode(TextWithMapping textWithMapping) {
     OxygenConfiguration config = new OxygenConfiguration(pluginWorkspaceAccess);
     String docLanguage = textWithMapping.getLanguageCode();
@@ -243,15 +248,21 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
 
   private LanguageToolClient getLanguageToolClient() {
     WSOptionsStorage storage = pluginWorkspaceAccess.getOptionsStorage();
-    SpellingRules spellingRules = getBooleanOption(IGNORE_SPELLING_ERRORS_KEY, storage) ?
+    String server;
+    if (getBooleanOption(USE_INTERNET_SERVER_KEY, false, storage)) {
+      server = INTERNET_SERVER_URL;
+    } else {
+      server = storage.getOption(SERVER_URL_KEY, DEFAULT_URL);
+    }
+    SpellingRules spellingRules = getBooleanOption(IGNORE_SPELLING_ERRORS_KEY, true, storage) ?
             SpellingRules.Ignore : SpellingRules.Consider;
-    WhitespaceRules whitespaceRules = getBooleanOption(IGNORE_WHITESPACE_ERRORS_KEY, storage) ?
+    WhitespaceRules whitespaceRules = getBooleanOption(IGNORE_WHITESPACE_ERRORS_KEY, true, storage) ?
             WhitespaceRules.Ignore : WhitespaceRules.Consider;
-    return new LanguageToolClient(storage.getOption(SERVER_URL_KEY, DEFAULT_URL), spellingRules, whitespaceRules);
+    return new LanguageToolClient(server, spellingRules, whitespaceRules);
   }
 
-  private boolean getBooleanOption(String key, WSOptionsStorage storage) {
-    return storage.getOption(key, "true").equals("true");
+  private boolean getBooleanOption(String key, boolean defaultValue, WSOptionsStorage storage) {
+    return storage.getOption(key, String.valueOf(defaultValue)).equals("true");
   }
 
   private Color getMarkerColor(RuleMatch ruleMatch) {

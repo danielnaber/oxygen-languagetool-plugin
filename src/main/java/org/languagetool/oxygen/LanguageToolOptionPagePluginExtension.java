@@ -23,17 +23,19 @@ import ro.sync.exml.workspace.api.PluginWorkspace;
 
 import javax.swing.*;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExtension {
 
+  static final String USE_INTERNET_SERVER_KEY = "useInternetServer";
   static final String SERVER_URL_KEY = "serverUrl";
   static final String DEFAULT_URL = "http://localhost:8081";
   static final String IGNORE_SPELLING_ERRORS_KEY = "ignoreSpellingErrors";
   static final String IGNORE_WHITESPACE_ERRORS_KEY = "ignoreWhitespaceErrors";
 
   private final JTextField serverUrlField = new JTextField();
+  private final JCheckBox useInternetServer = new JCheckBox("Use internet server (slower; see http://languagetool.org for privacy policy)");
   private final JCheckBox ignoreSpellingErrors = new JCheckBox("Ignore spelling errors (as oXygen has its own spell checker)");
   private final JCheckBox ignoreWhitespaceErrors = new JCheckBox("Ignore whitespace errors (cause false alarms in text mode)");
 
@@ -47,47 +49,41 @@ public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExten
     JPanel panel = new JPanel(new GridBagLayout());
 
     GridBagConstraints cons = new GridBagConstraints();
-    cons.insets = new Insets(0, 4, 0, 0);
+    cons.insets = new Insets(0, 4, 5, 0);
     cons.gridx = 0;
     cons.gridy = 0;
     cons.anchor = GridBagConstraints.NORTH;
     cons.fill = GridBagConstraints.HORIZONTAL;
 
+    useInternetServer.setSelected(getUseInternetServer(pluginWorkspace));
+    useInternetServer.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        serverUrlField.setEnabled(e.getStateChange() == ItemEvent.DESELECTED);
+      }
+    });
+    cons.gridwidth = 2;
+    panel.add(useInternetServer, cons);
+
+    cons.gridy = 1;
+    cons.gridwidth = 1;
     panel.add(new JLabel("LanguageTool server URL:"), cons);
 
     cons.gridx = 1;
-    cons.fill = GridBagConstraints.HORIZONTAL;
     cons.weightx = 1.0;
     serverUrlField.setText(getServerUrl(pluginWorkspace));
-    serverUrlField.addPropertyChangeListener(new PropertyChangeListener() {
-      @Override
-      public void propertyChange(PropertyChangeEvent evt) {
-        setServerUrl(pluginWorkspace);
-      }
-    });
+    serverUrlField.setEnabled(!getUseInternetServer(pluginWorkspace));
     panel.add(serverUrlField, cons);
 
     cons.gridx = 0;
-    cons.gridy = 1;
+    cons.gridy = 2;
     cons.gridwidth = 2;
     ignoreSpellingErrors.setSelected(getIgnoreSpellingErrors(pluginWorkspace));
-    ignoreSpellingErrors.addPropertyChangeListener(new PropertyChangeListener() {
-      @Override
-      public void propertyChange(PropertyChangeEvent evt) {
-        setIgnoreSpellingErrors(pluginWorkspace);
-      }
-    });
     panel.add(ignoreSpellingErrors, cons);
 
     cons.gridx = 0;
-    cons.gridy = 2;
+    cons.gridy = 3;
     ignoreWhitespaceErrors.setSelected(getIgnoreWhitespaceErrors(pluginWorkspace));
-    ignoreWhitespaceErrors.addPropertyChangeListener(new PropertyChangeListener() {
-      @Override
-      public void propertyChange(PropertyChangeEvent evt) {
-        setIgnoreWhitespaceErrors(pluginWorkspace);
-      }
-    });
     panel.add(ignoreWhitespaceErrors, cons);
 
     return panel;
@@ -95,12 +91,27 @@ public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExten
 
   @Override
   public void apply(PluginWorkspace pluginWorkspace) {
+    setUseInternetServer(pluginWorkspace);
     setServerUrl(pluginWorkspace);
+    setIgnoreSpellingErrors(pluginWorkspace);
+    setIgnoreWhitespaceErrors(pluginWorkspace);
   }
 
   @Override
   public void restoreDefaults() {
+    useInternetServer.setEnabled(false);
     serverUrlField.setText(DEFAULT_URL);
+    ignoreSpellingErrors.setEnabled(true);
+    ignoreWhitespaceErrors.setEnabled(true);
+  }
+
+  private boolean getUseInternetServer(PluginWorkspace pluginWorkspace) {
+    // set the default to 'false' for privacy reasons:
+    return pluginWorkspace.getOptionsStorage().getOption(USE_INTERNET_SERVER_KEY, "false").equals("true");
+  }
+
+  private void setUseInternetServer(PluginWorkspace pluginWorkspace) {
+    pluginWorkspace.getOptionsStorage().setOption(USE_INTERNET_SERVER_KEY, String.valueOf(useInternetServer.isSelected()));
   }
 
   private String getServerUrl(PluginWorkspace pluginWorkspace) {

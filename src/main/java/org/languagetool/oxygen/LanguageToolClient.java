@@ -55,6 +55,10 @@ class LanguageToolClient {
     this.whitespaceRules = whitespaceRules;
   }
 
+  String getServerUrl() {
+    return serverUrl;
+  }
+
   List<RuleMatch> checkText(TextWithMapping text, String langCode) {
     HttpURLConnection connection = null;
     try {
