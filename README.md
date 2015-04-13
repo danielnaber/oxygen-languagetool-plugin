@@ -39,9 +39,6 @@ you have problems.
 
 ### Known Limitations
 
-* Requires a [LanguageTool](https://languagetool.org) server.
-  By default, it needs to be running at `http://localhost:8081`. Setting this up
-  is very easy, see the "Download and Install" section above.
 * Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
