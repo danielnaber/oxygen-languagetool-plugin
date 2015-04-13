@@ -31,16 +31,22 @@ class RuleMatch {
   private final int offsetEnd;
   private final List<String> replacements;
   private final String issueType;
+  private final String ruleId;
 
   private int oxygenOffsetStart;
   private int oxygenOffsetEnd;
 
-  RuleMatch(String message, int offsetStart, int offsetEnd, List<String> replacements, String issueType) {
+  RuleMatch(String ruleId, String message, int offsetStart, int offsetEnd, List<String> replacements, String issueType) {
+    this.ruleId = Objects.requireNonNull(ruleId);
     this.message = Objects.requireNonNull(message);
     this.offsetStart = offsetStart;
     this.offsetEnd = offsetEnd;
     this.replacements = replacements;
     this.issueType = issueType;
+  }
+
+  String getRuleId() {
+    return ruleId;
   }
 
   String getMessage() {

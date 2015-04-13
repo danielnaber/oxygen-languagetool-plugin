@@ -10,10 +10,7 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
   latest release. Unzip it in the `plugins` directory of your oXygen installation and restart oXygen.
 * Start the [LanguageTool](https://languagetool.org) stand-alone version.
 * Go to `Text Checking -> Options...`
-* Select `Run as server on port 8081` and `Use above settings for the server`
-* Turn **off** the whitespace and spell checker rules. For English, these are at:
-    * `Miscellaneous` -> `Whitespace repetition (bad formatting)`
-    * `Possible Typo` -> `Possible spelling mistake`
+* Select `Run as server on port 8081` and `Use above settings for the server` and click `OK`
 
 ### Usage
 
@@ -31,9 +28,10 @@ you have problems.
 * Basically, it simply checks anything not inside XML tags. As the logic for
   text extraction is different in Author mode and Text mode, this can sometimes
   lead to different error messages in both modes.
-* Does not work in Grid view
+* Does not work in Grid view.
 * Supports only one language per document. If it doesn't find a `lang` or `xml:lang`
   attribute, it uses the default language configured for the spell checker.
+* There's no "ignore" option for individual errors.
 * In Text mode:
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded

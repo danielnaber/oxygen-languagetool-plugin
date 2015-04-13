@@ -25,13 +25,14 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.languagetool.oxygen.LanguageToolClient.*;
 
 public class LanguageToolClientTest {
   
   @Test
   @Ignore("needs LanguageTool running locally in server mode")
   public void testCheckViaHttp() {
-    LanguageToolClient client = new LanguageToolClient("http://localhost:8081/");
+    LanguageToolClient client = new LanguageToolClient("http://localhost:8081/", SpellingRules.Ignore, WhitespaceRules.Ignore);
     TextWithMapping text = new TextWithMapping(null);
     text.addMapping(new TextRange(0, 16), new TextRange(10, 26));
     text.setText("This is an text.");

@@ -32,6 +32,7 @@ import ro.sync.exml.workspace.api.editor.WSEditor;
 import ro.sync.exml.workspace.api.editor.page.author.WSAuthorEditorPage;
 import ro.sync.exml.workspace.api.editor.page.text.TextPopupMenuCustomizer;
 import ro.sync.exml.workspace.api.editor.page.text.WSTextEditorPage;
+import ro.sync.exml.workspace.api.options.WSOptionsStorage;
 import ro.sync.exml.workspace.api.standalone.MenuBarCustomizer;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
@@ -50,8 +51,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.DEFAULT_URL;
-import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.SERVER_URL_KEY;
+import static org.languagetool.oxygen.LanguageToolClient.*;
+import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.*;
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
@@ -241,7 +242,16 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   }
 
   private LanguageToolClient getLanguageToolClient() {
-    return new LanguageToolClient(pluginWorkspaceAccess.getOptionsStorage().getOption(SERVER_URL_KEY, DEFAULT_URL));
+    WSOptionsStorage storage = pluginWorkspaceAccess.getOptionsStorage();
+    SpellingRules spellingRules = getBooleanOption(IGNORE_SPELLING_ERRORS_KEY, storage) ?
+            SpellingRules.Ignore : SpellingRules.Consider;
+    WhitespaceRules whitespaceRules = getBooleanOption(IGNORE_WHITESPACE_ERRORS_KEY, storage) ?
+            WhitespaceRules.Ignore : WhitespaceRules.Consider;
+    return new LanguageToolClient(storage.getOption(SERVER_URL_KEY, DEFAULT_URL), spellingRules, whitespaceRules);
+  }
+
+  private boolean getBooleanOption(String key, WSOptionsStorage storage) {
+    return storage.getOption(key, "true").equals("true");
   }
 
   private Color getMarkerColor(RuleMatch ruleMatch) {

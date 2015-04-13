@@ -42,10 +42,17 @@ import java.util.List;
  */
 class LanguageToolClient {
 
-  private final String serverUrl;
+  enum SpellingRules { Consider, Ignore }
+  enum WhitespaceRules { Consider, Ignore }
 
-  LanguageToolClient(String serverUrl) {
+  private final String serverUrl;
+  private final SpellingRules spellingRules;
+  private final WhitespaceRules whitespaceRules;
+
+  LanguageToolClient(String serverUrl, SpellingRules spellingRules, WhitespaceRules whitespaceRules) {
     this.serverUrl = serverUrl;
+    this.spellingRules = spellingRules;
+    this.whitespaceRules = whitespaceRules;
   }
 
   List<RuleMatch> checkText(TextWithMapping text, String langCode) {
@@ -122,13 +129,40 @@ class LanguageToolClient {
     for (int i = 0; i < nodeSet.getLength(); i++) {
       Node errorNode = nodeSet.item(i);
       RuleMatch ruleMatch = getRuleMatch(text, errorNode);
-      matches.add(ruleMatch);
+      boolean ignoreRule = isRuleIgnored(ruleMatch);
+      if (!ignoreRule) {
+        matches.add(ruleMatch);
+      }
     }
     return matches;
   }
 
+  // Should the rule be ignored? We ignore them client-side instead of sending the disabled=...
+  // parameter to the server as that would cause the other settings the user made to be ignored.
+  // We ignore the rules so the user doesn't need to visit the configuration dialog and
+  // set them to ignored themselves (also, this way LT's public HTTP server can be used).
+  private boolean isRuleIgnored(RuleMatch ruleMatch) {
+    boolean ignoreRule = false;
+    String ruleId = ruleMatch.getRuleId();
+    if (spellingRules == SpellingRules.Ignore) {
+      // There's no common id for a spell checker rule and locqualityissuetype="misspelling" isn't 
+      // exactly what we need:
+      if (ruleId.equals("HUNSPELL_RULE") || ruleId.startsWith("MORFOLOGIK_RULE_") || ruleId.endsWith("_SPELLER_RULE")) {
+        ignoreRule = true;
+      }
+    }
+    if (whitespaceRules == WhitespaceRules.Ignore) {
+      // whitespace rule causes false alarms in text mode with XML indentation
+      if (ruleId.equals("WHITESPACE_RULE")) {
+        ignoreRule = true;
+      }
+    }
+    return ignoreRule;
+  }
+
   private RuleMatch getRuleMatch(TextWithMapping text, Node errorNode) {
     NamedNodeMap attributes = errorNode.getAttributes();
+    String ruleId = attributes.getNamedItem("ruleId").getNodeValue();
     String message = attributes.getNamedItem("msg").getNodeValue();
     Node replacementAttribute = attributes.getNamedItem("replacements");
     List<String> replacements = replacementAttribute != null ?
@@ -138,7 +172,7 @@ class LanguageToolClient {
     Node issueType = attributes.getNamedItem("locqualityissuetype");
     int offset = Integer.parseInt(offsetStr);
     int length = Integer.parseInt(lengthStr);
-    RuleMatch ruleMatch = new RuleMatch(message, offset, offset + length, replacements, issueType != null ? issueType.getNodeValue() : null);
+    RuleMatch ruleMatch = new RuleMatch(ruleId, message, offset, offset + length, replacements, issueType != null ? issueType.getNodeValue() : null);
     try {
       ruleMatch.setOxygenOffsetStart(text.getOxygenPositionFor(offset) + 1);
       ruleMatch.setOxygenOffsetEnd(text.getOxygenPositionFor(offset + length - 1) + 1);
