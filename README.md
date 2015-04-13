@@ -6,17 +6,23 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
 
 ### Download and Install
 
-* LanguageTool:
-    * Start the [LanguageTool](https://languagetool.org) stand-alone version.
-    * Go to `Text Checking -> Options...`
-    * Select `Run as server on port 8081` and `Use above settings for the server`
-      and click `OK`
 * oXygen:
     * In the oXygen menu, open `Help -> Install new add-ons...`
     * In the field `Show add-ons from`, add this URL:
       https://raw.githubusercontent.com/danielnaber/oxygen-languagetool-plugin/master/extensions.xml
     * The LanguageTool add-on will be displayed. Follow the steps to install it and
       restart oXygen.
+* Without installing LanguageTool - this might be okay for you if you just want to
+  test the plugin and can accept slower performance and the fact that this will send 
+  your texts over an encrypted connection to a LanguageTool server on the internet
+  (see [our privacy policy](https://languagetool.org/privacy/)).
+    * In oXygen, go to `Options -> Preferences...` and on the `LanguageTool Plugin`
+      page, check `Use internet server`
+* With installing LanguageTool:
+    * Start the [LanguageTool](https://languagetool.org) stand-alone version.
+    * Go to `Text Checking -> Options...`
+    * Select `Run as server on port 8081` and `Use above settings for the server`
+      and click `OK`
 
 If you want to install this add-on manually for some reason,  go to
 [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases)
