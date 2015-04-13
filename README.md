@@ -6,11 +6,22 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
 
 ### Download and Install
 
-* Go to [the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases) and get the
-  latest release. Unzip it in the `plugins` directory of your oXygen installation and restart oXygen.
-* Start the [LanguageTool](https://languagetool.org) stand-alone version.
-* Go to `Text Checking -> Options...`
-* Select `Run as server on port 8081` and `Use above settings for the server` and click `OK`
+* LanguageTool:
+    * Start the [LanguageTool](https://languagetool.org) stand-alone version.
+    * Go to `Text Checking -> Options...`
+    * Select `Run as server on port 8081` and `Use above settings for the server`
+      and click `OK`
+* oXygen:
+    * In the oXygen menu, open `Help -> Install new add-ons...`
+    * In the field `Show add-ons from`, add this URL:
+      https://raw.githubusercontent.com/danielnaber/oxygen-languagetool-plugin/master/extensions.xml
+    * The LanguageTool add-on will be displayed. Follow the steps to install it and
+      restart oXygen.
+
+If you want to install this add-on manually for some reason,  go to
+[the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases)
+and get the latest release. Unzip it in the `plugins` directory of your oXygen
+installation and restart oXygen.
 
 ### Usage
 
@@ -42,8 +53,8 @@ you have problems.
 
 Building the source code requires Java 6 or later, Maven, and your `.m2/settings.xml` to be set up
 [as described here](http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration).
-Call `mvn package`, then unzip the resulting `target/oxygen-plugin-1.0-SNAPSHOT-plugin.jar`
-to a sub-directory of your `oxygen/plugins` folder and restart oXygen.
+Call `mvn package`, then unzip the resulting `target/oxygen-languagetool-plugin-(...)-plugin.jar`
+to a sub-directory of your oXygen's `plugins` directory and restart oXygen.
 
 Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free license.
 
