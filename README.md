@@ -24,11 +24,6 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
     * Select `Run as server on port 8081` and `Use above settings for the server`
       and click `OK`
 
-If you want to install this add-on manually for some reason,  go to
-[the release tab](https://github.com/danielnaber/oxygen-languagetool-plugin/releases)
-and get the latest release. Unzip it in the `plugins` directory of your oXygen
-installation and restart oXygen.
-
 ### Usage
 
 Load an XML file and click the `LanguageTool Check` button or press `Ctrl + Shift + Return`.
