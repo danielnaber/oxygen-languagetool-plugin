@@ -13,11 +13,13 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
     * The LanguageTool add-on will be displayed. Follow the steps to install it and
       restart oXygen.
 * Without installing LanguageTool - this might be okay for you if you just want to
-  test the plugin and can accept slower performance and the fact that this will send 
-  your texts over an encrypted connection to a LanguageTool server on the internet
-  (see [our privacy policy](https://languagetool.org/privacy/)).
+  test the plugin:
     * In oXygen, go to `Options -> Preferences...` and on the `LanguageTool Plugin`
       page, check `Use internet server`
+    * Limitations: slower performance; will not work on large texts (>50KB) or on texts
+      where checking takes more than 10 seconds; will send 
+      your texts over an encrypted connection to a LanguageTool server on the internet
+      (see [our privacy policy](https://languagetool.org/privacy/))
 * With installing LanguageTool:
     * Start the [LanguageTool](https://languagetool.org) stand-alone version.
     * Go to `Text Checking -> Options...`
