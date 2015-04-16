@@ -5,7 +5,7 @@
     <!-- for updated, add another 'xt:extension' here (and keep the old ones) -->
     
     <xt:extension xmlns:xt="http://www.oxygenxml.com/ns/extension" id="org.languagetool.oxygen.plugin">
-        <xt:location href="http://danielnaber.de/tmp/oxygen-languagetool-plugin-1.0.0.jar"/>
+        <xt:location href="https://github.com/danielnaber/oxygen-languagetool-plugin/releases/download/1.0.0/oxygen-languagetool-plugin-1.0-SNAPSHOT-plugin.jar"/>
         <xt:version>1.0.0</xt:version>
         <xt:oxy_version>16.0+</xt:oxy_version>
         <xt:type>plugin</xt:type>
