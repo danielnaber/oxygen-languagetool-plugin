@@ -29,7 +29,10 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
 ### Usage
 
 Load an XML file and click the `LanguageTool Check` button or press `Ctrl + Shift + Return`.
-Errors detected by LanguageTool will become highlighted. If something doesn't work,
+Errors detected by LanguageTool will become highlighted. Click the right mouse button on
+an error to get an error message and, for some errors, a list of corrections.
+
+If something doesn't work,
 please start oXygen from the command line and see if you get any error messages there.
 [Submit a bug report](https://github.com/danielnaber/oxygen-languagetool-plugin/issues) if
 you have problems.
