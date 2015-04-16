@@ -1,7 +1,7 @@
 LanguageTool for oXygen
 =======================
 
-**Beta version** of a [LanguageTool](https://languagetool.org/) plugin
+A [LanguageTool](https://languagetool.org/) plugin
 for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html).
 
 ### Download and Install
@@ -62,7 +62,7 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Changelog
 
-* version 2015-xx-yy:
+* version 1.0.0 (2015-04-16):
     * LanguageTool server can be configured at `Options -> Preferences... -> Plugins`
     * no more on-the-fly checking while typing
     * added `Ctrl + Shift + Return` as a shortcut to start the check
