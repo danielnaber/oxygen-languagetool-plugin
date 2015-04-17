@@ -4,6 +4,7 @@ LanguageTool for oXygen
 A [LanguageTool](https://languagetool.org/) plugin
 for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html).
 
+
 ### Download and Install
 
 * oXygen:
@@ -26,6 +27,7 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
     * Select `Run as server on port 8081` and `Use above settings for the server`
       and click `OK`
 
+
 ### Usage
 
 Load an XML file and click the `LanguageTool Check` button or press `Ctrl + Shift + Return`.
@@ -36,6 +38,7 @@ If something doesn't work,
 please start oXygen from the command line and see if you get any error messages there.
 [Submit a bug report](https://github.com/danielnaber/oxygen-languagetool-plugin/issues) if
 you have problems.
+
 
 ### Known Limitations
 
@@ -59,9 +62,12 @@ Building the source code requires Java 6 or later, Maven, and your `.m2/settings
 Call `mvn package`, then unzip the resulting `target/oxygen-languagetool-plugin-(...)-plugin.jar`
 to a sub-directory of your oXygen's `plugins` directory and restart oXygen.
 
+The LanguageTool wiki contains [internal release documentation](http://wiki.languagetool.org/how-to-make-a-languagetool-for-oxygen-release). 
+
 Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free license.
 
 ![oXygen XML editor](http://www.oxygenxml.com/img/resources/oxygen190x62.png)
+
 
 ### Changelog
 
