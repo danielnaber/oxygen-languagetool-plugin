@@ -105,9 +105,9 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       }
       
       private void setupHighlightingForAuthorMode(WSEditor editorAccess) {
-        final WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
+        WSAuthorEditorPage authorPageAccess = (WSAuthorEditorPage) editorAccess.getCurrentPage();
         authorPageAccess.addPopUpMenuCustomizer(authorPopupMenuCustomizer);
-        final AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
+        AuthorHighlighter highlighter = authorPageAccess.getHighlighter();
         checkTextInBackground(highlighter, authorPageAccess);
       }
     };
