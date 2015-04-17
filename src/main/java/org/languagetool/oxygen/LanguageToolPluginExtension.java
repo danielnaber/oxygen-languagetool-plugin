@@ -280,10 +280,12 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
     showErrorDialog(msg, e);
   }
 
-  private void addMenuItems(JPopupMenu popUp, RuleMatch match, Action action) {
+  private void replaceMenuItems(JPopupMenu popUp, RuleMatch match, Action action) {
     List<String> splitMessage = Helper.splitAtSpace(match.getMessage(), 40);
+    for (Component component : popUp.getComponents()) {
+      popUp.remove(component);
+    }
     int i = 0;
-    popUp.addSeparator();
     for (String s : splitMessage) {
       JMenuItem menuItem = new JMenuItem(i == 0 ? s : "  " + s);
       popUp.add(menuItem);
@@ -313,7 +315,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       for (Highlight highlight : highlights) {
         if (caretOffset >= highlight.getStartOffset() && caretOffset <= highlight.getEndOffset()) {
           RuleMatch match = (RuleMatch) highlight.getAdditionalData();
-          addMenuItems((JPopupMenu) popUp, match, new AuthorModeApplyReplacementAction(match, authorAccess));
+          replaceMenuItems((JPopupMenu) popUp, match, new AuthorModeApplyReplacementAction(match, authorAccess));
           break;
         }
       }
@@ -331,7 +333,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
         HighlightInfo hInfo = highlightData.getInfoForCaretOrNull(caretOffset);
         if (hInfo != null) {
           RuleMatch match = hInfo.ruleMatch;
-          addMenuItems((JPopupMenu) popUp, match, new TextModeApplyReplacementAction(match, textPage, highlightData, editorAccess));
+          replaceMenuItems((JPopupMenu) popUp, match, new TextModeApplyReplacementAction(match, textPage, highlightData, editorAccess));
         }
       } else {
         System.err.println("textComponent not of type JTextArea: " + textComponent.getClass().getName());

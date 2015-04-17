@@ -65,6 +65,9 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Changelog
 
+* version 1.0.1 (not yet released):
+    * the popup menu over errors now replaces the oXygen entries
+      and only shows the error and corrections
 * version 1.0.0 (2015-04-16):
     * LanguageTool server can be configured at `Options -> Preferences... -> Plugins`
     * no more on-the-fly checking while typing
