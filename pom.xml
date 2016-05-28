@@ -4,11 +4,11 @@
 
     <groupId>org.languagetool</groupId>
     <artifactId>oxygen-languagetool-plugin</artifactId>
-    <version>1.0.1</version>
+    <version>1.1-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -57,7 +57,8 @@
                     <keypass>blabla</keypass>
                     <storepass>blabla</storepass>
                     <storetype>pkcs12</storetype>
-                    <alias>6c070a43-903d-11e4-991b-8c89a57cdeaa</alias>
+                    <!-- call 'keytool -keystore /myalias.p12 -list' to get the valid alias: -->
+                    <alias>3a0d3f8c-a822-11e5-9bd3-8c89a57cdeaa</alias>
                 </configuration>
             </plugin>
         </plugins>
@@ -69,11 +70,19 @@
             <groupId>com.oxygenxml</groupId>
             <artifactId>oxygen</artifactId>
             <version>16.1.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-oss</artifactId>
             <version>3.5.15</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.languagetool</groupId>
+            <artifactId>languagetool-http-client</artifactId>
+            <version>3.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>

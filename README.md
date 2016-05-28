@@ -52,15 +52,17 @@ you have problems.
 * In Text mode:
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded
-* Tested with oXygen 16.1 only.
+* Version 1.1 only tested with oXygen 18.0.
+* Version 1.0 only tested with oXygen 16.1.
 
 
 ### Building
 
-Building the source code requires Java 6 or later, Maven, and your `.m2/settings.xml` to be set up
+Building the source code requires Java 8 or later, Maven, and your `.m2/settings.xml` to be set up
 [as described here](http://www.oxygenxml.com/oxygen_sdk_maven.html#maven_sdk_configuration).
 Call `mvn package`, then unzip the resulting `target/oxygen-languagetool-plugin-(...)-plugin.jar`
-to a sub-directory of your oXygen's `plugins` directory and restart oXygen.
+to a sub-directory of your oXygen's `plugins` directory and restart oXygen. You'll also
+need to manually copy the library dependencies to the `lib` directory.
 
 The LanguageTool wiki contains [internal release documentation](http://wiki.languagetool.org/how-to-make-a-languagetool-for-oxygen-release). 
 
@@ -71,9 +73,11 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Changelog
 
-* version 1.0.1 (not yet released):
+* version 1.1 (not yet released):
+    * support and require LanguageTool's new JSON API (requires LanguageTool 3.4 or later)
     * the popup menu over errors now replaces the oXygen entries
       and only shows the error and corrections
+    * works with Java 1.8 or later
 * version 1.0.0 (2015-04-16):
     * LanguageTool server can be configured at `Options -> Preferences... -> Plugins`
     * no more on-the-fly checking while typing

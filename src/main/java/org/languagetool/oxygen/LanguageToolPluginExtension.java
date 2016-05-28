@@ -57,7 +57,7 @@ import static org.languagetool.oxygen.LanguageToolOptionPagePluginExtension.*;
 @SuppressWarnings("CallToPrintStackTrace")
 public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtension {
 
-  private static final String INTERNET_SERVER_URL = "https://languagetool.org:8081";
+  private static final String INTERNET_SERVER_URL = "https://languagetool.org/api";
   private static final double MAX_REPLACEMENTS = 5;  // maximum number of suggestion shown in the context menu
   private static final Color DEFAULT_COLOR = new Color(255, 199, 66);
 
