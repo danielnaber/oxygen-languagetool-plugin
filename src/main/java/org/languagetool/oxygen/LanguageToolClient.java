@@ -51,7 +51,7 @@ class LanguageToolClient {
 
   List<RuleMatch> checkText(TextWithMapping text, String langCode) {
     try {
-      List<RuleMatch> matches = new ArrayList<RuleMatch>();
+      List<RuleMatch> matches = new ArrayList<>();
       RemoteLanguageTool lt = new RemoteLanguageTool(new URL(serverUrl));
       RemoteResult result = lt.check(text.getText(), langCode.replace('_', '-'));
       List<RemoteRuleMatch> remoteMatches = result.getMatches();
@@ -102,7 +102,7 @@ class LanguageToolClient {
   private RuleMatch getRuleMatch(TextWithMapping text, RemoteRuleMatch m) {
     int offset = m.getErrorOffset();
     int length = m.getErrorLength();
-    List<String> replacements = m.getReplacements().orElse(new ArrayList<String>());
+    List<String> replacements = m.getReplacements().orElse(new ArrayList<>());
     RuleMatch ruleMatch = new RuleMatch(m.getRuleId(), m.getMessage(), offset,
             offset + length, replacements, m.getLocQualityIssueType().orElse(null));
     try {

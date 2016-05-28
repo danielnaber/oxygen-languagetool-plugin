@@ -28,7 +28,7 @@ import java.util.Map;
  */
 class TextWithMapping {
 
-  private final Map<TextRange, TextRange> mapping = new HashMap<TextRange, TextRange>();
+  private final Map<TextRange, TextRange> mapping = new HashMap<>();
 
   private final String mappingName;
 

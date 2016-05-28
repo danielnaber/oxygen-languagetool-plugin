@@ -24,7 +24,6 @@ import ro.sync.exml.workspace.api.PluginWorkspace;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExtension {
 
@@ -56,12 +55,7 @@ public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExten
     cons.fill = GridBagConstraints.HORIZONTAL;
 
     useInternetServer.setSelected(getUseInternetServer(pluginWorkspace));
-    useInternetServer.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        serverUrlField.setEnabled(e.getStateChange() == ItemEvent.DESELECTED);
-      }
-    });
+    useInternetServer.addItemListener(e -> serverUrlField.setEnabled(e.getStateChange() == ItemEvent.DESELECTED));
     cons.gridwidth = 2;
     panel.add(useInternetServer, cons);
 

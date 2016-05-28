@@ -53,7 +53,7 @@ class ColorConfiguration {
 
   // copied and adapted from LanguageTool's Configuration class:
   private Map<String, Color> getTypeToColorMap(String colorsString) {
-    Map<String, Color> map = new HashMap<String, Color>();
+    Map<String, Color> map = new HashMap<>();
     if (colorsString != null && !colorsString.isEmpty()) {
       String[] typeToColorList = colorsString.split(",\\s*");
       for (String typeToColor : typeToColorList) {

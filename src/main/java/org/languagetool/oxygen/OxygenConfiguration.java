@@ -61,6 +61,7 @@ class OxygenConfiguration {
         }
       } catch (Exception e) {
         System.err.println("Could not load language from " + preferencesFile + ": " + e.getMessage() + ", will use English for LanguageTool check");
+        //noinspection CallToPrintStackTrace
         e.printStackTrace();
         return "en";
       }

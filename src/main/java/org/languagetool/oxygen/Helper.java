@@ -27,7 +27,7 @@ final class Helper {
   }
 
   static List<String> splitAtSpace(String s, int max) {
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
@@ -42,15 +42,6 @@ final class Helper {
       result.add(sb.toString());
     }
     return result;
-  }
-
-  static String join(List<String> list, String delimiter) {
-    StringBuilder sb = new StringBuilder();
-    for (String s : list) {
-      sb.append(s);
-      sb.append(delimiter);
-    }
-    return sb.toString();
   }
 
 }

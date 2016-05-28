@@ -66,7 +66,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
   private final AuthorPopupMenuCustomizer authorPopupMenuCustomizer = new ApplyReplacementMenuCustomizerForAuthor();
 
   private StandalonePluginWorkspace pluginWorkspaceAccess;
-  private Map<String, Color> errorTypeToColor = new HashMap<String, Color>();
+  private Map<String, Color> errorTypeToColor = new HashMap<>();
 
   @Override
   public void applicationStarted(final StandalonePluginWorkspace pluginWorkspaceAccess) {
@@ -127,7 +127,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
       @Override
       public void customizeToolbar(ToolbarInfo toolbarInfo) {
         if ("LanguageToolWorkspaceAccessToolbarID".equals(toolbarInfo.getToolbarID())) {
-          List<JComponent> components = new ArrayList<JComponent>();
+          List<JComponent> components = new ArrayList<>();
           JComponent[] initialComponents = toolbarInfo.getComponents();
           if (initialComponents != null && initialComponents.length > 0) {
             Collections.addAll(components, initialComponents);
@@ -347,7 +347,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
    */
   static class PerEditorHighlightData {
 
-    private final Map<String,HighlightData> highlightData = new HashMap<String,HighlightData>();  // editorAccess.getEditorLocation() -> HighlightData for that editor
+    private final Map<String,HighlightData> highlightData = new HashMap<>();  // editorAccess.getEditorLocation() -> HighlightData for that editor
 
     HighlightData get(WSEditor editor) {
       String key = editor.getEditorLocation().toString();
@@ -364,7 +364,7 @@ public class LanguageToolPluginExtension implements WorkspaceAccessPluginExtensi
    */
   static class HighlightData {
 
-    private final List<HighlightInfo> infos = new ArrayList<HighlightInfo>();
+    private final List<HighlightInfo> infos = new ArrayList<>();
 
     void clear() {
       infos.clear();

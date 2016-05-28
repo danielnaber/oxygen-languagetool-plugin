@@ -20,9 +20,7 @@ package org.languagetool.oxygen;
 
 import ro.sync.ecss.extensions.api.AuthorDocumentController;
 import ro.sync.ecss.extensions.api.filter.AuthorFilteredContent;
-import ro.sync.ecss.extensions.api.filter.AuthorNodesFilter;
 import ro.sync.ecss.extensions.api.node.AuthorDocumentFragment;
-import ro.sync.ecss.extensions.api.node.AuthorNode;
 
 import javax.swing.text.BadLocationException;
 
@@ -37,12 +35,7 @@ class AuthorModeTextCollector {
     AuthorDocumentFragment fragment = docController.createDocumentFragment(0, endOffset);
     String xml = docController.serializeFragmentToXML(fragment);
     String langCode = new LanguageAttributeDetector().getDocumentLanguage(xml);
-    final AuthorFilteredContent filteredContent = docController.getFilteredContent(0, endOffset, new AuthorNodesFilter() {
-      @Override
-      public boolean shouldFilterNode(AuthorNode authorNode) {
-        return false;
-      }
-    });
+    final AuthorFilteredContent filteredContent = docController.getFilteredContent(0, endOffset, authorNode -> false);
     // getFilteredContent() leaves specials chars (\u0000) in its string,
     // so we need another mapping that provides a view without those,
     // as they would confuse LT:
