@@ -73,7 +73,7 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Changelog
 
-* version 1.1 (not yet released):
+* version 1.1 (2016-06-21):
     * support and require LanguageTool's new JSON API (requires LanguageTool 3.4 or later)
     * the popup menu over errors now replaces the oXygen entries
       and only shows the error and corrections
