@@ -4,7 +4,7 @@
 
     <groupId>org.languagetool</groupId>
     <artifactId>oxygen-languagetool-plugin</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
