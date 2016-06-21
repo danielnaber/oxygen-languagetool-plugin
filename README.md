@@ -10,7 +10,7 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
 * oXygen:
     * In the oXygen menu, open `Help -> Install new add-ons...`
     * In the field `Show add-ons from`, add this URL:
-      https://raw.githubusercontent.com/danielnaber/oxygen-languagetool-plugin/master/extensions.xml
+      https://raw.githubusercontent.com/danielnaber/oxygen-languagetool-plugin/master/extensions.xml?v11
     * The LanguageTool add-on will be displayed. Follow the steps to install it and
       restart oXygen.
 * Without installing LanguageTool - this might be okay for you if you just want to
