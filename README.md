@@ -52,6 +52,8 @@ you have problems.
 * In Text mode:
     * Will not properly work on XML that is not well-formed
     * Entities are not expanded
+* Checking long texts might take long. With checks that take longer than roughly
+  30 seconds, a timeout error will occur.
 * Version 1.1 only tested with oXygen 18.0.
 * Version 1.0 only tested with oXygen 16.1.
 
