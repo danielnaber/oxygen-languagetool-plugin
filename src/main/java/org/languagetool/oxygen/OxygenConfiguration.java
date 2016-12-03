@@ -34,7 +34,7 @@ import java.io.FileInputStream;
  */
 class OxygenConfiguration {
 
-  private static final String PREFS_FILE = "oxyOptionsSa16.0.xml";
+  private static final String PREFS_FILE_TEMPLATE = "oxyAuthorOptionsSa<VERSION>.xml";
 
   private final StandalonePluginWorkspace pluginWorkspaceAccess;
 
@@ -44,7 +44,7 @@ class OxygenConfiguration {
 
   String getDefaultLanguageCode() {
     String preferencesDir = pluginWorkspaceAccess.getPreferencesDirectory();
-    File preferencesFile = new File(preferencesDir, PREFS_FILE);
+    File preferencesFile = new File(preferencesDir, PREFS_FILE_TEMPLATE.replace("<VERSION>", pluginWorkspaceAccess.getVersion()));
     if (preferencesFile.exists()) {
       try {
         FileInputStream stream = null;
