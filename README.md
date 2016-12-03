@@ -75,6 +75,8 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 
 ### Changelog
 
+* version 1.2 (20xx-xx-xx):
+    * fixed a bug that caused using the configuration file of an old oXygen version
 * version 1.1 (2016-06-21):
     * support and require LanguageTool's new JSON API (requires LanguageTool 3.4 or later)
     * the popup menu over errors now replaces the oXygen entries
