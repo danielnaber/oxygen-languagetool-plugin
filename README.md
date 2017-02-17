@@ -73,6 +73,20 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 ![oXygen XML editor](http://www.oxygenxml.com/img/resources/oxygen190x62.png)
 
 
+### Release
+
+* use `deploy-dnaber.sh` to deploy and test locally
+* make sure the libs in `plugin.xml` are still correct
+* update version number in `extension.xml`
+* update version number in `pom.xml`
+* add a `<xt:extension>` section in `extensions.xml` with the new version number and filename
+* update Changelog section above
+* zip the `languagetool` directory in the `plugins` directory and call it `…jar` (as referenced from `extensions.xml`)
+* upload the JAR at github
+
+This process doesn't sign the JAR properly, though :-(
+
+
 ### Changelog
 
 * version 1.2 (20xx-xx-xx):
