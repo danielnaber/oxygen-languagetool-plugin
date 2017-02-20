@@ -34,7 +34,7 @@ public class LanguageToolOptionPagePluginExtension extends OptionPagePluginExten
   static final String IGNORE_WHITESPACE_ERRORS_KEY = "ignoreWhitespaceErrors";
 
   private final JTextField serverUrlField = new JTextField();
-  private final JCheckBox useInternetServer = new JCheckBox("Use internet server (slower; see http://languagetool.org for privacy policy)");
+  private final JCheckBox useInternetServer = new JCheckBox("Use internet server (slower; text size limited; see http://languagetool.org for privacy policy)");
   private final JCheckBox ignoreSpellingErrors = new JCheckBox("Ignore spelling errors (as oXygen has its own spell checker)");
   private final JCheckBox ignoreWhitespaceErrors = new JCheckBox("Ignore whitespace errors (cause false alarms in text mode)");
 

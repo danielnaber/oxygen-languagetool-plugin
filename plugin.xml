@@ -11,10 +11,10 @@
  classLoaderType="preferReferencedResources">
  <runtime>
    <library name="lib/${project.build.finalName}.jar"/>
-   <library name="lib/languagetool-http-client-3.4-SNAPSHOT.jar"/>
-   <library name="lib/jackson-annotations-2.7.0.jar"/>
-   <library name="lib/jackson-core-2.7.4.jar"/>
-   <library name="lib/jackson-databind-2.7.4.jar"/>
+   <library name="lib/languagetool-http-client-3.6.jar"/>
+   <library name="lib/jackson-annotations-2.8.0.jar"/>
+   <library name="lib/jackson-core-2.8.4.jar"/>
+   <library name="lib/jackson-databind-2.8.4.jar"/>
  </runtime>
  
  <extension type="WorkspaceAccess" class="org.languagetool.oxygen.LanguageToolPluginExtension"/>

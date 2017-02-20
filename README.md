@@ -10,15 +10,15 @@ for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html)
 * oXygen:
     * In the oXygen menu, open `Help -> Install new add-ons...`
     * In the field `Show add-ons from`, add this URL:
-      https://raw.githubusercontent.com/danielnaber/oxygen-languagetool-plugin/master/extensions.xml?v11
+      https://raw.githubusercontent.com/danielnaber/oxygen-languagetool-plugin/master/extensions.xml?v12
     * The LanguageTool add-on will be displayed. Follow the steps to install it and
       restart oXygen.
 * Without installing LanguageTool - this might be okay for you if you just want to
   test the plugin:
     * In oXygen, go to `Options -> Preferences...` and on the `LanguageTool Plugin`
       page, check `Use internet server`
-    * Limitations: slower performance; will not work on large texts (>50KB) or on texts
-      where checking takes more than 10 seconds; will send 
+    * Limitations: slower performance; will only work on short texts (about 15KB) and on texts
+      where checking takes less than 10 seconds; will send 
       your texts over an encrypted connection to a LanguageTool server on the internet
       (see [our privacy policy](https://languagetool.org/privacy/))
 * With installing LanguageTool:
@@ -54,8 +54,7 @@ you have problems.
     * Entities are not expanded
 * Checking long texts might take long. With checks that take longer than roughly
   30 seconds, a timeout error will occur.
-* Version 1.1 only tested with oXygen 18.0.
-* Version 1.0 only tested with oXygen 16.1.
+* Only tested with oXygen 18.0.
 
 
 ### Building
@@ -80,8 +79,9 @@ Thanks to [oXygen XML](http://www.oxygenxml.com) for providing me with a free li
 * update version number in `extension.xml`
 * update version number in `pom.xml`
 * add a `<xt:extension>` section in `extensions.xml` with the new version number and filename
-* update Changelog section above
-* zip the `languagetool` directory in the `plugins` directory and call it `…jar` (as referenced from `extensions.xml`)
+* update Changelog section below
+* zip the `languagetool` directory in the `plugins` directory and call it `…jar` (as referenced from `extensions.xml`):
+  `cd oxygen/plugins && zip -r oxygen-languagetool-plugin-1.X-plugin.jar languagetool/`
 * upload the JAR at github
 
 This process doesn't sign the JAR properly, though :-(
@@ -89,7 +89,7 @@ This process doesn't sign the JAR properly, though :-(
 
 ### Changelog
 
-* version 1.2 (20xx-xx-xx):
+* version 1.2 (2017-02-20):
     * fixed a bug that caused using the configuration file of an old oXygen version
 * version 1.1 (2016-06-21):
     * support and require LanguageTool's new JSON API (requires LanguageTool 3.4 or later)
