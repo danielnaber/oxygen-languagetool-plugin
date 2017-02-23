@@ -54,7 +54,7 @@ you have problems.
     * Entities are not expanded
 * Checking long texts might take long. With checks that take longer than roughly
   30 seconds, a timeout error will occur.
-* Only tested with oXygen 18.0.
+* Only tested with oXygen 18.1.
 
 
 ### Building
@@ -89,6 +89,10 @@ This process doesn't sign the JAR properly, though :-(
 
 ### Changelog
 
+* version 1.3 (2017-02-23):
+    * fixed loading the configuration file: XML Author, XML Editor, and
+      XML Developer configuration files are now considered, depending on the
+      currently running application
 * version 1.2 (2017-02-20):
     * fixed a bug that caused using the configuration file of an old oXygen version
 * version 1.1 (2016-06-21):

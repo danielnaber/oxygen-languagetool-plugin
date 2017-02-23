@@ -25,6 +25,7 @@ import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -34,17 +35,29 @@ import java.io.FileInputStream;
  */
 class OxygenConfiguration {
 
-  private static final String PREFS_FILE_TEMPLATE = "oxyAuthorOptionsSa<VERSION>.xml";
+  private final String prefsFileTemplate;
 
   private final StandalonePluginWorkspace pluginWorkspaceAccess;
 
   OxygenConfiguration(StandalonePluginWorkspace pluginWorkspaceAccess) {
     this.pluginWorkspaceAccess = pluginWorkspaceAccess;
+    Frame parentFrame = (Frame)pluginWorkspaceAccess.getParentFrame();
+    String title = parentFrame.getTitle();
+    // see https://www.oxygenxml.com/forum/post41681.html#p41681:
+    if (title.contains("XML Editor")) {
+      prefsFileTemplate = "oxyOptionsSa<VERSION>.xml";
+    } else if (title.contains("XML Author")) {
+      prefsFileTemplate = "oxyAuthorOptionsSa<VERSION>.xml";
+    } else if (title.contains("XML Developer")) {
+      prefsFileTemplate = "oxyDeveloperOptionsSa<VERSION>.xml";
+    } else {
+      throw new RuntimeException("Could not detect app, unexpected title: '" + title + "'");
+    }
   }
 
   String getDefaultLanguageCode() {
     String preferencesDir = pluginWorkspaceAccess.getPreferencesDirectory();
-    File preferencesFile = new File(preferencesDir, PREFS_FILE_TEMPLATE.replace("<VERSION>", pluginWorkspaceAccess.getVersion()));
+    File preferencesFile = new File(preferencesDir, prefsFileTemplate.replace("<VERSION>", pluginWorkspaceAccess.getVersion()));
     if (preferencesFile.exists()) {
       try {
         FileInputStream stream = null;
