@@ -1,6 +1,10 @@
 LanguageTool for oXygen
 =======================
 
+-----------------------------------------------------------
+**NOTE**: this add-on is currently not maintained anymore
+-----------------------------------------------------------
+
 A [LanguageTool](https://languagetool.org/) plugin
 for [oXygen XML Author](http://www.oxygenxml.com/download_oxygenxml_author.html).
 
